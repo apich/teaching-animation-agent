@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>象数演易 - 交互式教学动画生成器</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        /* --- 基础设置：新中式配色与字体 --- */
+        :root {
+            --ink-black: #2B2B2B;
+            --ink-grey: #5A6A76;
+            --paper-bg: #F7F5F0;
+            --primary-red: #B83B43;
+            --primary-blue: #3E5C76;
+            --accent-gold: #cfaa76;
+            --jade-green: #7D9F88;
+            --symbol-brown: #8B6F47;
+            --quantity-blue: #6B8E9F;
+            --number-brown: #A67C52;
+            --reasoning-brown: #9B7A6B;
+            --card-bg: #FFFFFF;
+            --border-color: #E0DCD3;
+            --font-serif: "Noto Serif SC", "Songti SC", "SimSun", serif;
+            --font-sans: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+            --font-decorative: "Ma Shan Zheng", cursive;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            background-color: var(--paper-bg);
+            color: var(--ink-black);
+            overflow-x: hidden;
+            background-image: radial-gradient(#E8E6E1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* --- 导航栏 --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 40px;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+
+        .logo:hover {
+            opacity: 1;
+        }
+
+        .logo-wrapper {
+            position: relative;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .logo-wrapper .logo-icon {
+            width: 50px;
+            height: 50px;
+            z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-decorative);
+            font-size: 36px;
+            color: var(--primary-blue);
+        }
+
+        .logo-wrapper .tech-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px dashed #546e7a;
+            border-radius: 50%;
+            opacity: 0;
+            transform: scale(0.8) rotate(0deg);
+            transition: all 0.5s ease;
+        }
+
+        .logo:hover .logo-wrapper .logo-icon,
+        .logo-wrapper:hover .logo-icon {
+            transform: rotate(360deg);
+        }
+
+        .logo:hover .logo-wrapper .tech-ring,
+        .logo-wrapper:hover .tech-ring {
+            opacity: 0.6;
+            transform: scale(1.1) rotate(-180deg);
+        }
+
+        .logo-text {
+            font-family: var(--font-serif);
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--primary-blue);
+            letter-spacing: 2px;
+        }
+
+        .nav-search {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+        }
+
+        .nav-search input {
+            width: 280px;
+            padding: 8px 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 999px;
+            font-size: 14px;
+            background: #fff;
+            outline: none;
+            font-family: var(--font-sans);
+        }
+
+        .nav-search input:focus {
+            border-color: var(--primary-blue);
+        }
+
+        .nav-search-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            height: 36px;
+            border: none;
+            border-radius: 50%;
+            background: var(--primary-blue);
+            color: #fff;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .nav-search-btn:hover {
+            background: #2d4a5e;
+        }
+
+        .search-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 400px;
+            margin-top: 8px;
+            background: #fff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            max-height: 400px;
+            overflow-y: auto;
+            z-index: 999;
+            padding: 8px;
+        }
+
+        .search-dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .search-dropdown-item:hover {
+            background: #f7f5f0;
+        }
+
+        .search-dropdown-item .item-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+
+        .search-dropdown-item .item-title {
+            font-size: 14px;
+            color: var(--ink-black);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .search-dropdown-empty {
+            text-align: center;
+            padding: 20px;
+            color: var(--ink-grey);
+            font-size: 14px;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .top-action-btn {
+            position: relative;
+            overflow: hidden;
+            border-radius: 999px;
+            padding: 10px 18px;
+            border: 1.5px solid transparent;
+            min-height: 44px;
+            font-family: var(--font-serif);
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            color: var(--primary-blue);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            box-shadow: 0 8px 18px rgba(62, 92, 118, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+            backdrop-filter: blur(8px);
+            transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease, color 0.22s ease;
+            cursor: pointer;
+            background: transparent;
+        }
+
+        .top-action-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(120deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0));
+            opacity: 0.8;
+            pointer-events: none;
+        }
+
+        .top-action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 14px 24px rgba(62, 92, 118, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+        }
+
+        .top-action-login {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(243, 239, 230, 0.96));
+            border-color: rgba(62, 92, 118, 0.55);
+            color: var(--primary-blue);
+        }
+
+        .top-action-login:hover {
+            border-color: rgba(62, 92, 118, 0.95);
+            color: #1f3342;
+        }
+
+        .top-action-btn .btn-text {
+            position: relative;
+            z-index: 1;
+        }
+
+        .top-action-btn .btn-shine {
+            position: absolute;
+            inset: 0;
+            transform: translateX(-120%);
+            background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.5) 50%, transparent 65%);
+            transition: transform 0.55s ease;
+            pointer-events: none;
+        }
+
+        .top-action-btn:hover .btn-shine {
+            transform: translateX(120%);
+        }
+
+        .top-action-btn .btn-glow {
+            position: absolute;
+            inset: -18px;
+            border-radius: inherit;
+            background: radial-gradient(circle, rgba(184, 59, 67, 0.16) 0%, rgba(184, 59, 67, 0) 65%);
+            opacity: 0;
+            transition: opacity 0.22s ease;
+            pointer-events: none;
+        }
+
+        .top-action-btn:hover .btn-glow {
+            opacity: 1;
+        }
+
+        /* --- Hero Section --- */
+        .hero-section {
+            position: relative;
+            padding: 80px 20px 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            overflow-y: visible;
+        }
+
+        /* --- 横向滚动轮播 --- */
+        .cards-carousel-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 400px;
+            position: relative;
+            margin-bottom: 60px;
+            mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+            -webkit-mask-image: linear-gradient(to right, transparent, black 15%, black 85%, transparent);
+            opacity: 0.9;
+            overflow: visible;
+        }
+
+        .cards-track {
+            display: flex;
+            gap: 30px;
+            position: absolute;
+            left: 0;
+            animation: scrollLeft 60s linear infinite;
+            width: max-content;
+        }
+
+        .cards-track:hover {
+            animation-play-state: paused;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .math-card {
+            width: 300px;
+            height: 360px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(43, 43, 43, 0.06);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
+            flex-shrink: 0;
+        }
+
+        .math-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 32px rgba(43, 43, 43, 0.1);
+            border-color: var(--primary-blue);
+            z-index: 10;
+        }
+
+        .math-card .card-graph {
+            width: 100%;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8e2d9 100%);
+        }
+
+        .math-card .card-graph .card-graph-icon {
+            font-size: 48px;
+            opacity: 0.4;
+        }
+
+        .math-card .card-graph img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .math-card .card-title {
+            font-family: var(--font-serif);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--ink-black);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .math-card .card-desc {
+            font-size: 0.85rem;
+            color: var(--ink-grey);
+            line-height: 1.5;
+            flex: 1;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .math-card .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .math-card .tag {
+            font-size: 0.7rem;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-weight: 500;
+        }
+
+        .math-card .card-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            font-size: 0.65rem;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: var(--jade-green);
+            color: white;
+        }
+
+        .math-card .card-status.generating {
+            background: var(--accent-gold);
+        }
+
+        .hero-title {
+            text-align: center;
+            margin-bottom: 50px;
+            z-index: 10;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            position: relative;
+        }
+
+        .brand-eyebrow {
+            font-size: 1.1rem;
+            color: var(--accent-gold);
+            font-weight: 500;
+            letter-spacing: 0.2em;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            font-family: 'Noto Sans SC', var(--font-sans);
+        }
+
+        .brand-eyebrow::before,
+        .brand-eyebrow::after {
+            content: "";
+            display: block;
+            width: 30px;
+            height: 1px;
+            background-color: var(--accent-gold);
+            opacity: 0.5;
+        }
+
+        .hero-title h1 {
+            font-family: var(--font-serif);
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: var(--ink-black);
+            margin-bottom: 20px;
+            letter-spacing: -0.02em;
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-title h1::after {
+            content: "易";
+            position: absolute;
+            right: -40px;
+            top: 0;
+            font-size: 14px;
+            color: white;
+            background-color: #b03a2e;
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-decorative);
+            box-shadow: 2px 2px 0 rgba(176, 58, 46, 0.2);
+            opacity: 0.8;
+            transform: rotate(8deg);
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--ink-grey);
+            font-weight: 300;
+            margin-bottom: 30px;
+            font-family: var(--font-sans);
+        }
+
+        .badge-notice {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            background-color: rgba(184, 59, 67, 0.08);
+            color: var(--primary-red);
+            font-size: 0.85rem;
+            border-radius: 50px;
+            font-weight: 500;
+            gap: 6px;
+        }
+
+        .badge-notice svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        /* --- 搜索条 --- */
+        .search-container-center {
+            position: relative;
+            z-index: 50;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            margin-top: -40px;
+        }
+
+        .search-floater {
+            background: white;
+            border-radius: 50px;
+            padding: 8px 8px 8px 30px;
+            box-shadow: 0 15px 40px rgba(62, 92, 118, 0.15);
+            display: flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            width: 720px;
+            max-width: 90%;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .search-floater:hover,
+        .search-floater:focus-within {
+            box-shadow: 0 20px 50px rgba(184, 59, 67, 0.15);
+            border-color: var(--primary-red);
+            transform: translateY(-2px);
+        }
+
+        .search-input {
+            border: none;
+            outline: none;
+            flex: 1;
+            min-width: 0;
+            font-size: 18px;
+            color: var(--ink-black);
+            background: transparent;
+            font-family: var(--font-sans);
+            height: 50px;
+            padding-right: 10px;
+        }
+
+        .search-input::placeholder {
+            color: #999;
+            font-weight: 300;
+        }
+
+        .input-actions {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+            gap: 4px;
+            padding-right: 12px;
+            margin-right: 8px;
+            border-right: 1px solid #EEE;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: var(--ink-grey);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover {
+            background-color: #F7F5F0;
+            color: var(--primary-red);
+            transform: scale(1.05);
+        }
+
+        .search-btn {
+            background: var(--primary-red);
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            border: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s, background 0.3s;
+            margin-left: 10px;
+            flex-shrink: 0;
+        }
+
+        .search-btn:hover {
+            background: #A02F36;
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* --- 进度条模块 --- */
+        .task-progress-module {
+            width: min(720px, 90%);
+            margin: 18px auto 0;
+            background: rgba(255, 255, 255, 0.96);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            box-shadow: 0 18px 40px rgba(62, 92, 118, 0.12);
+            padding: 18px 22px;
+            display: none;
+        }
+
+        .task-progress-module.show {
+            display: block;
+        }
+
+        .task-progress-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .task-progress-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-top-color: var(--primary-blue);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .task-progress-status {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink-black);
+        }
+
+        .task-progress-bar-shell {
+            width: 100%;
+            height: 10px;
+            border-radius: 999px;
+            background: #F1EEE8;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .task-progress-bar {
+            width: 0%;
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, var(--primary-red), var(--accent-gold));
+            transition: width 0.2s ease;
+        }
+
+        .task-progress-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--ink-grey);
+        }
+
+        /* --- 展示区域 --- */
+        .teachings-showcase-section {
+            padding: 80px 20px;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .showcase-header {
+            max-width: 1400px;
+            margin: 0 auto 50px;
+            text-align: center;
+        }
+
+        .showcase-title {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .showcase-title h2 {
+            font-family: var(--font-serif);
+            font-size: 48px;
+            margin-bottom: 16px;
+            color: var(--ink-black);
+        }
+
+        .showcase-title p {
+            color: var(--ink-grey);
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        /* 标签筛选器样式 */
+        .tag-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 40px;
+        }
+
+        .tag-filter-btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--ink-grey);
+            border-radius: 20px;
+            font-size: 14px;
+            font-family: var(--font-sans);
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .tag-filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .tag-filter-btn.active {
+            color: white;
+            border-color: transparent;
+        }
+
+        .tag-filter-btn[data-tag="all"].active {
+            background: var(--primary-blue);
+        }
+
+        .tag-filter-btn[data-tag="模型意识"]:hover,
+        .tag-filter-btn[data-tag="模型意识"].active {
+            background: var(--primary-red);
+            border-color: var(--primary-red);
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="数据意识"]:hover,
+        .tag-filter-btn[data-tag="数据意识"].active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="空间观念"]:hover,
+        .tag-filter-btn[data-tag="空间观念"].active {
+            background: var(--jade-green);
+            border-color: var(--jade-green);
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="几何直观"]:hover,
+        .tag-filter-btn[data-tag="几何直观"].active {
+            background: var(--accent-gold);
+            border-color: var(--accent-gold);
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="符号意识"]:hover,
+        .tag-filter-btn[data-tag="符号意识"].active {
+            background: #8B6F47;
+            border-color: #8B6F47;
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="量感"]:hover,
+        .tag-filter-btn[data-tag="量感"].active {
+            background: #6B8E9F;
+            border-color: #6B8E9F;
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="数感"]:hover,
+        .tag-filter-btn[data-tag="数感"].active {
+            background: #A67C52;
+            border-color: #A67C52;
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="推理意识"]:hover,
+        .tag-filter-btn[data-tag="推理意识"].active {
+            background: #9B7A6B;
+            border-color: #9B7A6B;
+            color: white;
+        }
+
+        .tag-filter-btn[data-tag="运算能力"]:hover,
+        .tag-filter-btn[data-tag="运算能力"].active {
+            background: var(--primary-blue);
+            border-color: var(--primary-blue);
+            color: white;
+        }
+
+        /* 标签样式 */
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: white;
+            font-weight: 500;
+            font-family: var(--font-serif);
+            letter-spacing: 1px;
+        }
+
+        .tag-main {
+            padding: 6px 14px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .tag-sub {
+            padding: 3px 10px;
+            font-size: 11px;
+            font-weight: 400;
+            opacity: 0.9;
+            margin-right: 6px;
+        }
+
+        .tag-main.model, .tag-sub.model { background: var(--primary-red); }
+        .tag-main.data, .tag-sub.data { background: var(--primary-blue); }
+        .tag-main.spatial, .tag-sub.spatial { background: var(--jade-green); }
+        .tag-main.geometric, .tag-sub.geometric { background: var(--accent-gold); }
+        .tag-main.symbol, .tag-sub.symbol { background: var(--symbol-brown); }
+        .tag-main.quantity, .tag-sub.quantity { background: var(--quantity-blue); }
+        .tag-main.number, .tag-sub.number { background: var(--number-brown); }
+        .tag-main.reasoning, .tag-sub.reasoning { background: var(--reasoning-brown); }
+        .tag-main.operation, .tag-sub.operation { background: var(--primary-blue); }
+
+        /* 卡片网格 */
+        .cards-grid-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .task-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            position: relative;
+        }
+
+        .task-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            border-color: var(--primary-blue);
+        }
+
+        .task-card-image {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #f5f0eb 0%, #e8e2d9 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .task-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .task-card-image .fallback-icon {
+            font-size: 48px;
+            opacity: 0.4;
+        }
+
+        .task-card-content {
+            padding: 20px;
+        }
+
+        .task-card-title {
+            font-family: var(--font-serif);
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--ink-black);
+            margin-bottom: 8px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .task-card-desc {
+            font-size: 13px;
+            color: var(--ink-grey);
+            line-height: 1.6;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .task-card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .task-card-status {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+
+        .task-card-status.completed { background: rgba(92, 130, 103, 0.9); }
+        .task-card-status.running { background: rgba(62, 92, 118, 0.9); }
+        .task-card-status.pending { background: rgba(207, 170, 118, 0.9); }
+        .task-card-status.failed { background: rgba(184, 59, 67, 0.9); }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            color: var(--ink-grey);
+            grid-column: 1 / -1;
+        }
+
+        .empty-state-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+        }
+
+        /* --- Features Section --- */
+        .features-section {
+            padding: 100px 20px;
+            background: #fff;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .section-title {
+            font-family: var(--font-serif);
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 70px;
+            color: var(--ink-black);
+        }
+
+        .section-title span {
+            color: var(--primary-red);
+            background: linear-gradient(120deg, transparent 60%, rgba(184, 59, 67, 0.2) 60%);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            border-radius: 16px;
+            padding: 40px;
+            text-align: left;
+            height: 420px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: default;
+            border: 1px solid transparent;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            border-color: var(--border-color);
+        }
+
+        .feature-card.style-1 {
+            background: linear-gradient(135deg, #FDFBF7 0%, #F2EFE9 100%);
+        }
+
+        .feature-card.style-2 {
+            background: linear-gradient(135deg, #F4F8FB 0%, #E6EEF5 100%);
+        }
+
+        .feature-card.style-3 {
+            background: linear-gradient(135deg, #F9FDFB 0%, #EBF5F0 100%);
+        }
+
+        .feature-card h3 {
+            font-family: var(--font-serif);
+            font-size: 26px;
+            margin-bottom: 16px;
+            color: var(--ink-black);
+        }
+
+        .feature-card p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: var(--ink-grey);
+        }
+
+        .card-visual {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 85%;
+            height: 55%;
+            background: rgba(255, 255, 255, 0.5);
+            border-top-left-radius: 20px;
+            backdrop-filter: blur(8px);
+            border-top: 1px solid rgba(255, 255, 255, 0.8);
+            border-left: 1px solid rgba(255, 255, 255, 0.8);
+            opacity: 0.8;
+        }
+
+        /* --- Footer / Trust Section --- */
+        .trust-section {
+            padding: 80px 20px 100px;
+            background: var(--paper-bg);
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .team-from {
+            font-family: var(--font-serif);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 50px;
+            color: var(--ink-grey);
+            font-size: 18px;
+            flex-wrap: wrap;
+        }
+
+        .uni-text {
+            font-weight: bold;
+            color: var(--primary-blue);
+            padding-bottom: 2px;
+            border-bottom: 2px solid rgba(62, 92, 118, 0.2);
+        }
+
+        .bottom-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .left-col {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .bento-card {
+            border-radius: 16px;
+            padding: 30px;
+            text-align: left;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+
+        .bento-card:hover {
+            transform: scale(1.02);
+        }
+
+        .bento-card.light-blue {
+            background: #E8F1F8;
+            height: 160px;
+            color: var(--primary-blue);
+        }
+
+        .bento-card.light-jade {
+            background: #EBF5F0;
+            height: 160px;
+            color: #2F5C45;
+        }
+
+        .bento-card h4 {
+            font-family: var(--font-serif);
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        .bento-card p {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .testimonial-card {
+            background: var(--primary-blue);
+            color: white;
+            border-radius: 16px;
+            padding: 40px;
+            text-align: left;
+            position: relative;
+            grid-row: span 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .testimonial-stack {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 300px;
+            height: 350px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            transform: rotate(5deg);
+            z-index: 0;
+            animation: floatStack 8s ease-in-out infinite;
+        }
+
+        @keyframes floatStack {
+            0%, 100% { transform: rotate(5deg) translateY(0); }
+            50% { transform: rotate(3deg) translateY(-8px); }
+        }
+
+        .testimonial-content {
+            z-index: 1;
+        }
+
+        .quote-icon {
+            font-family: serif;
+            font-size: 80px;
+            opacity: 0.2;
+            line-height: 0.5;
+            margin-bottom: 20px;
+        }
+
+        .stars {
+            color: var(--accent-gold);
+            margin-top: 20px;
+            letter-spacing: 4px;
+        }
+
+        /* --- 全屏弹窗 --- */
+        /* --- Toast --- */
+        .toast-container {
+            position: fixed;
+            right: 20px;
+            bottom: 20px;
+            z-index: 20000;
+            display: grid;
+            gap: 10px;
+            pointer-events: none;
+        }
+
+        .toast {
+            min-width: 240px;
+            max-width: min(360px, calc(100vw - 40px));
+            background: rgba(43, 43, 43, 0.92);
+            color: #fff;
+            border-radius: 16px;
+            padding: 12px 16px;
+            box-shadow: 0 16px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(12px);
+            font-size: 14px;
+            line-height: 1.5;
+            transform: translateY(10px);
+            opacity: 0;
+            animation: toast-in 0.25s ease forwards;
+            pointer-events: auto;
+        }
+
+        .toast.success { background: rgba(92, 130, 103, 0.96); }
+        .toast.error { background: rgba(184, 59, 67, 0.96); }
+        .toast.info { background: rgba(62, 92, 118, 0.96); }
+        .toast.doc-upload-toast {
+            background: #4A6F7C;
+            border-radius: 12px;
+            font-size: 14px;
+            padding: 12px 20px;
+            max-width: 460px;
+            white-space: normal;
+            line-height: 1.6;
+        }
+
+        @keyframes toast-in {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            header {
+                padding: 10px 16px;
+            }
+
+            .logo-text {
+                font-size: 20px;
+            }
+
+            .logo-wrapper,
+            .logo-wrapper .logo-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 28px;
+            }
+
+            .nav-search input {
+                width: 160px;
+            }
+
+            .nav-search-btn {
+                width: 30px;
+                height: 30px;
+            }
+
+            .nav-actions {
+                gap: 12px;
+            }
+
+            .top-action-btn {
+                min-height: 40px;
+                padding: 8px 14px;
+                font-size: 14px;
+            }
+
+            .hero-title h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero-title h1::after {
+                right: -30px;
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+            }
+
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+
+            .search-floater {
+                width: 100%;
+                max-width: 100%;
+                padding: 10px 12px 10px 16px;
+                border-radius: 28px;
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .search-input {
+                flex: 1 1 100%;
+                order: 1;
+                height: 44px;
+                font-size: 16px;
+            }
+
+            .input-actions {
+                order: 2;
+                padding-right: 0;
+                margin-right: 0;
+                border-right: none;
+                gap: 2px;
+            }
+
+            .search-btn {
+                order: 3;
+                margin-left: auto;
+                width: 44px;
+                height: 44px;
+                flex-shrink: 0;
+            }
+
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+            }
+
+            .showcase-title h2 {
+                font-size: 32px;
+            }
+
+            .showcase-title p {
+                font-size: 16px;
+            }
+
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .bottom-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cards-grid-container {
+                grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+                gap: 16px;
+            }
+
+            .modal-content {
+                width: 100vw;
+                height: 100vh;
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title h1 {
+                font-size: 2.2rem;
+            }
+
+            .hero-title h1::after {
+                display: none;
+            }
+
+            .cards-grid-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 1. 全局导航栏 -->
+    <header>
+        <a href="#" class="logo" onclick="location.reload()">
+            <div class="logo-wrapper">
+                <div class="tech-ring"></div>
+                <div class="logo-icon">易</div>
+            </div>
+            <span class="logo-text">象数演易</span>
+        </a>
+        <div class="nav-search">
+            <input type="text" placeholder="输入题目后回车..." id="headerSearchInput" onkeydown="if(event.key==='Enter'){searchFromHeader();return false;}">
+            <button class="nav-search-btn" onclick="searchFromHeader()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+            </button>
+            <div class="search-dropdown" id="searchDropdown" style="display:none;"></div>
+        </div>
+        <div class="nav-actions">
+            <a href="#" class="nav-link top-action-btn top-action-login" id="loginLink" onclick="showLoginModal(); return false;">
+                <span class="btn-glow"></span>
+                <span class="btn-shine"></span>
+                <span class="btn-text">登入</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- 2. Hero Section -->
+    <section class="hero-section">
+
+        <div class="hero-title">
+            <div class="brand-eyebrow">融合传统哲学思维与现代算法</div>
+            <h1>观象 · 运数 · 演易</h1>
+            <h2 class="hero-subtitle">全国首个交互式教学动画生成引擎</h2>
+            <div class="badge-notice">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>输入数学题目，AI 自动生成交互式教学动画</span>
+            </div>
+        </div>
+
+        <!-- 背景轮播层（动态加载实际教学内容） -->
+        <div class="cards-carousel-container">
+            <div class="cards-track" id="carouselTrack">
+                <!-- 动态加载的卡片将插入这里 -->
+                <div style="text-align:center;padding:40px;color:var(--ink-grey);width:300px;">
+                    <p>正在加载教学内容...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 搜索条 -->
+        <div class="search-container-center">
+            <div class="search-floater">
+                <input type="text" class="search-input" id="searchInput"
+                    placeholder="输入数理问题，例如：勾股定理推导、一次函数图像、三角形内角和..." autofocus>
+
+                <div class="input-actions">
+                    <input type="file" id="img-upload" style="display: none;" accept="image/*">
+                    <button class="icon-btn" onclick="showToast('请上传 jpg/png/bmp/webp 格式图片','info');document.getElementById('img-upload').click()" title="上传图片">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                            <polyline points="21 15 16 10 5 21"></polyline>
+                        </svg>
+                    </button>
+                    <input type="file" id="doc-upload" style="display: none;" accept=".docx,.doc,.pdf,.txt">
+                    <button class="icon-btn" onclick="triggerDocUpload()" title="上传文件">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                    </button>
+                </div>
+
+                <button class="search-btn" id="searchBtn" title="生成动画">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 卡片网格 -->
+        <div class="toast-container" id="toastContainer"></div>
+
+    </section>
+
+    <!-- 3. 教学内容展示区域 -->
+    <section class="teachings-showcase-section">
+        <div class="showcase-header">
+            <div class="showcase-title">
+                <h2>已生成的交互式教学动画</h2>
+                <p>探索智慧，点击卡片即可查看</p>
+            </div>
+
+            <!-- 标签筛选器 -->
+            <div class="tag-filter-container" id="tagFilterContainer">
+                <button class="tag-filter-btn active" data-tag="all">全部</button>
+                <button class="tag-filter-btn" data-tag="模型意识">模型意识</button>
+                <button class="tag-filter-btn" data-tag="数据意识">数据意识</button>
+                <button class="tag-filter-btn" data-tag="空间观念">空间观念</button>
+                <button class="tag-filter-btn" data-tag="几何直观">几何直观</button>
+                <button class="tag-filter-btn" data-tag="符号意识">符号意识</button>
+                <button class="tag-filter-btn" data-tag="量感">量感</button>
+                <button class="tag-filter-btn" data-tag="数感">数感</button>
+                <button class="tag-filter-btn" data-tag="推理意识">推理意识</button>
+                <button class="tag-filter-btn" data-tag="运算能力">运算能力</button>
+            </div>
+        </div>
+
+        <!-- 卡片网格 -->
+        <div class="cards-grid-container" id="cardsContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">📝</div>
+                <p>暂无教学动画，在上方输入题目开始生成</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. Features Section -->
+    <section class="features-section">
+        <h2 class="section-title">古法今用 <span>智慧新生</span></h2>
+
+        <div class="features-grid">
+            <div class="feature-card style-1">
+                <h3>因材施教</h3>
+                <p>AI 能够识别你的思维脉络，<br>生成最契合当下的解题思路。</p>
+                <div class="card-visual"></div>
+            </div>
+
+            <div class="feature-card style-2">
+                <h3>化繁为简</h3>
+                <p>将晦涩的公式转化为<br>直观的图形演变，一目了然。</p>
+                <div class="card-visual"></div>
+            </div>
+
+            <div class="feature-card style-3">
+                <h3>全时伴读</h3>
+                <p>无论何时何地，<br>皆可与之问道，解惑答疑。</p>
+                <div class="card-visual"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. Trust / Footer Section -->
+    <section class="trust-section">
+        <div class="team-from">
+            <span style="opacity:0.7; font-size: 18px; letter-spacing: 2px;">溯源于</span>
+            <span class="uni-text">中国科学技术大学</span>
+            <span class="uni-text">蜗壳数舍</span>
+            <span class="uni-text">米可阅读营</span>
+        </div>
+
+        <h3 style="margin: 40px 0; font-family:var(--font-serif); font-size:28px;">AI 助力 <span style="color:var(--primary-red)">见微知著</span></h3>
+
+        <div class="bottom-grid">
+            <div class="left-col">
+                <div class="bento-card light-blue">
+                    <div>
+                        <h4>多语言通译</h4>
+                        <p>支持中文、英语及各类符号语言</p>
+                    </div>
+                    <div style="font-size:32px; opacity:0.6;">文</div>
+                </div>
+                <div class="bento-card light-jade">
+                    <div>
+                        <h4>全学段覆盖</h4>
+                        <p style="color:#2F5C45; font-weight:bold;">小学奥数 / 初中数学 / 高考 / 考研</p>
+                    </div>
+                    <div style="font-size:32px; opacity:0.6;">理</div>
+                </div>
+            </div>
+
+            <div class="testimonial-card">
+                <div class="testimonial-stack"></div>
+                <div class="testimonial-content">
+                    <div style="margin-bottom:20px;">
+                        <h4 style="font-size:22px; font-family:var(--font-serif);">陈妈妈</h4>
+                        <span style="background:rgba(255,255,255,0.2); padding:2px 8px; border-radius:4px; font-size:12px;">四年级学生家长</span>
+                    </div>
+                    <div class="quote-icon">"</div>
+                    <p style="line-height:1.8; margin-top:-20px; font-family:var(--font-serif);">
+                        此工具甚是精妙。以往复杂的奥数问题，经其演化为图形后，竟变得如此直观。它不仅给出了答案，更让小朋友理解了其中的变化之道。
+                    </p>
+                    <div class="stars">★★★★★</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // ==================== TAG 映射 ====================
+        const TAG_TYPE_MAP = {
+            '模型意识': 'model',
+            '数据意识': 'data',
+            '空间观念': 'spatial',
+            '几何直观': 'geometric',
+            '符号意识': 'symbol',
+            '量感': 'quantity',
+            '数感': 'number',
+            '推理意识': 'reasoning',
+            '运算能力': 'operation'
+        };
+
+        const COLOR_MAP = {
+            'model': '#B83B43',
+            'data': '#3E5C76',
+            'spatial': '#7D9F88',
+            'geometric': '#cfaa76',
+            'symbol': '#8B6F47',
+            'quantity': '#6B8E9F',
+            'number': '#A67C52',
+            'reasoning': '#9B7A6B',
+            'operation': '#3E5C76'
+        };
+
+        // ==================== DOM 元素 ====================
+        const searchInput = document.getElementById('searchInput');
+        const searchBtn = document.getElementById('searchBtn');
+        const cardsContainer = document.getElementById('cardsContainer');
+        const tagFilterContainer = document.getElementById('tagFilterContainer');
+        const toastContainer = document.getElementById('toastContainer');
+
+        // ==================== 状态 ====================
+        let allTasks = [];
+        let currentFilterTag = 'all';
+
+        // ==================== 工具函数 ====================
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ==================== Header 搜索下拉 ====================
+        function searchFromHeader() {
+            const q = document.getElementById('headerSearchInput').value.trim().toLowerCase();
+            const dropdown = document.getElementById('searchDropdown');
+            if (!q) { dropdown.style.display = 'none'; return; }
+
+            const ICON_MAP = {
+                '几何': '📐', '三角': '📐', '勾股': '📐', '平行': '📐',
+                '长方': '📦', '正方': '📦', '体积': '📦',
+                '函数': '📈', '一次': '📈', '二次': '📈',
+                '加法': '🔢', '减法': '🔢', '乘法': '🔢', '除法': '🔢', '运算': '🔢', '计算': '🔢', '混合': '🔢',
+                '面积': '📏', '周长': '📏', '方程': '🔣', '鸡兔': '🐔',
+            };
+            function getIcon(t) { for (const [k,v] of Object.entries(ICON_MAP)) { if (t.includes(k)) return v; } return '📐'; }
+
+            const results = allTasks.filter(t => {
+                const title = (t.title || t.prompt || '').toLowerCase();
+                return title.includes(q);
+            });
+
+            if (results.length === 0) {
+                dropdown.innerHTML = '<div class="search-dropdown-empty">未找到相关案例</div>';
+            } else {
+                dropdown.innerHTML = results.slice(0, 8).map(t => {
+                    const title = t.title || t.prompt || '';
+                    const icon = getIcon(title);
+                    return `<div class="search-dropdown-item" onclick="window.location.href='/video.html?task_id=${t.task_id}'">
+                        <span class="item-icon">${icon}</span>
+                        <span class="item-title">${title}</span>
+                    </div>`;
+                }).join('');
+            }
+            dropdown.style.display = 'block';
+        }
+
+        // 点击外部关闭下拉
+        document.addEventListener('click', (e) => {
+            const search = document.querySelector('.nav-search');
+            const dropdown = document.getElementById('searchDropdown');
+            if (search && dropdown && !search.contains(e.target)) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        function showToast(message, type = 'info', duration = 3000) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // ==================== 任务创建 ====================
+        searchBtn.addEventListener('click', createTask);
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') createTask();
+        });
+
+        async function createTask() {
+            const userInput = searchInput.value.trim();
+            const hasFile = !!uploadedFileText;
+            const hasText = userInput && !userInput.startsWith('📎');
+
+            if (!hasFile && !hasText) {
+                showToast('请输入数学题目或上传文件', 'info');
+                return;
+            }
+
+            // 合并文件内容和用户输入
+            let prompt = "";
+            let displayName = "";
+            if (hasFile && hasText) {
+                prompt = `[文件内容]\n${uploadedFileText}\n\n[补充说明]\n${userInput}`;
+                displayName = `📎 ${uploadedFileName} + ${userInput}`;
+            } else if (hasFile) {
+                prompt = uploadedFileText;
+                displayName = `📎 ${uploadedFileName}`;
+            } else {
+                prompt = userInput;
+                displayName = userInput;
+            }
+
+            // 用 localStorage 传递长内容，URL 只传显示名
+            const taskId = '_pending_' + Date.now();
+            localStorage.setItem(`upload_${taskId}`, prompt);
+            localStorage.setItem(`upload_name_${taskId}`, displayName);
+
+            // 清空状态
+            uploadedFileText = "";
+            uploadedFileName = "";
+
+            // 立即跳转
+            window.location.href = `/video.html?upload_id=${taskId}`;
+        }
+
+        // ==================== 标签筛选 ====================
+        async function loadTasks() {
+            try {
+                const res = await fetch('/api/tasks');
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                const tasks = await res.json();
+
+                allTasks = tasks;
+                renderCards();
+            } catch (err) {
+                console.error('加载任务列表失败:', err);
+                cardsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">⚠️</div>
+                        <p>加载失败，请稍后重试</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ==================== 渲染卡片 ====================
+        function renderCards() {
+            // 筛选
+            let filtered = allTasks;
+            if (currentFilterTag !== 'all') {
+                filtered = allTasks.filter(t => {
+                    if (!t.tags) return false;
+                    const main = t.tags.main_tag;
+                    const subs = t.tags.sub_tags || [];
+                    return main === currentFilterTag || subs.includes(currentFilterTag);
+                });
+            }
+
+            if (filtered.length === 0) {
+                cardsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📝</div>
+                        <p>${currentFilterTag === 'all' ? '暂无教学动画，在上方输入题目开始生成' : '暂无该标签的教学动画'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            cardsContainer.innerHTML = filtered.map(task => generateCardHTML(task)).join('');
+        }
+
+        // 图标映射（全局）
+        const ICON_MAP = {
+            '几何': '📐', '三角': '📐', '勾股': '📐', '平行': '📐', '长方': '📦', '正方': '📦', '体积': '📦',
+            '函数': '📈', '一次': '📈', '二次': '📈',
+            '加法': '🔢', '减法': '🔢', '乘法': '🔢', '除法': '🔢', '运算': '🔢', '计算': '🔢', '混合': '🔢',
+            '面积': '📏', '周长': '📏',
+            '概率': '🎲', '统计': '📊',
+            '方程': '🔣', '不等式': '🔣',
+            '鸡兔': '🐔', '追及': '🏃',
+        };
+        function getIcon(title) {
+            for (const [key, icon] of Object.entries(ICON_MAP)) {
+                if (title.includes(key)) return icon;
+            }
+            return '📐';
+        }
+
+        function generateCardHTML(task) {
+            const title = escapeHtml(task.title || task.prompt || '数学问题讲解');
+            const desc = escapeHtml(task.prompt || '');
+            const displayDesc = desc.length > 60 ? desc.substring(0, 60) + '...' : desc;
+            const status = task.status || 'pending';
+            const statusLabels = {
+                completed: '已完成',
+                running: '生成中',
+                pending: '等待中',
+                failed: '失败',
+                analyzing: '分析中',
+                planning: '规划中',
+                generating: '生成中',
+                reviewing: '审查中'
+            };
+
+            // 标签
+            let tagsHTML = '';
+            if (task.tags && task.tags.main_tag) {
+                const mainType = TAG_TYPE_MAP[task.tags.main_tag] || 'operation';
+                const mainTag = `<span class="tag tag-main ${mainType}">${escapeHtml(task.tags.main_tag)}</span>`;
+                let subTags = '';
+                if (task.tags.sub_tags && task.tags.sub_tags.length > 0) {
+                    subTags = task.tags.sub_tags.slice(0, 2).map(st => {
+                        const stType = TAG_TYPE_MAP[st] || 'operation';
+                        return `<span class="tag tag-sub ${stType}">${escapeHtml(st)}</span>`;
+                    }).join('');
+                }
+                tagsHTML = `<div class="task-card-tags">${mainTag}${subTags}</div>`;
+            }
+
+            // 图片区域
+            const tagType = task.tags && task.tags.main_tag ? (TAG_TYPE_MAP[task.tags.main_tag] || 'operation') : 'operation';
+            const svgColor = COLOR_MAP[tagType] || '#3E5C76';
+            let imageHTML;
+            if (status === 'completed') {
+                imageHTML = `
+                    <div class="task-card-image">
+                        <img src="/api/tasks/${task.task_id}/preview" alt="" loading="lazy"
+                             onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                        <span class="fallback-icon" style="display:none">${getIcon(title)}</span>
+                    </div>
+                `;
+            } else {
+                imageHTML = `
+                    <div class="task-card-image">
+                        <span class="fallback-icon">⏳</span>
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="task-card" onclick="handleCardClick('${task.task_id}', '${escapeHtml(task.title || task.prompt || '')}', '${status}')">
+                    ${imageHTML}
+                    <span class="task-card-status ${status}">${statusLabels[status] || status}</span>
+                    <div class="task-card-content">
+                        <h3 class="task-card-title">${title}</h3>
+                        <p class="task-card-desc">${displayDesc}</p>
+                        ${tagsHTML}
+                    </div>
+                </div>
+            `;
+        }
+
+        function handleCardClick(taskId, title, status) {
+            if (status === 'completed') {
+                window.location.href = `/video.html?task_id=${taskId}`;
+            } else if (status === 'failed') {
+                showToast('该任务生成失败', 'error');
+            } else {
+                showToast('该任务正在生成中，请稍候', 'info');
+            }
+        }
+
+        // ==================== 标签筛选 ====================
+        tagFilterContainer.addEventListener('click', (e) => {
+            const btn = e.target.closest('.tag-filter-btn');
+            if (!btn) return;
+
+            // 更新 active 状态
+            tagFilterContainer.querySelectorAll('.tag-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            currentFilterTag = btn.dataset.tag;
+            renderCards();
+        });
+
+        // ==================== 初始化 ====================
+        loadTasks();
+        loadCarousel();
+
+        // ==================== 轮播加载 ====================
+        async function loadCarousel() {
+            const track = document.getElementById('carouselTrack');
+            if (!track) return;
+
+            try {
+                const res = await fetch('/api/tasks');
+                const tasks = await res.json();
+                const completed = tasks.filter(t => t.status === 'completed');
+                if (completed.length === 0) return;
+
+                const tagColors = {
+                    '模型意识': { bg: '#FFF3E0', color: '#E65100' },
+                    '数据意识': { bg: '#E8F5E9', color: '#2E7D32' },
+                    '空间观念': { bg: '#E3F2FD', color: '#1565C0' },
+                    '几何直观': { bg: '#F3E5F5', color: '#7B1FA2' },
+                    '符号意识': { bg: '#FBE9E7', color: '#BF360C' },
+                    '量感': { bg: '#E0F2F1', color: '#00695C' },
+                    '数感': { bg: '#FFF8E1', color: '#F57F17' },
+                    '推理意识': { bg: '#EFEBE9', color: '#4E342E' },
+                    '运算能力': { bg: '#E8EAF6', color: '#283593' },
+                };
+
+                // 生成卡片 HTML
+                function makeCard(task) {
+                    const icon = getIcon(task.title || task.prompt || '');
+                    const tags = [];
+                    if (task.tags) {
+                        if (task.tags.main_tag) tags.push(task.tags.main_tag);
+                        if (task.tags.sub_tags) tags.push(...task.tags.sub_tags);
+                    }
+                    const tagsHtml = tags.map(t => {
+                        const c = tagColors[t] || { bg: '#f5f5f5', color: '#666' };
+                        return `<span class="tag" style="background:${c.bg};color:${c.color}">${t}</span>`;
+                    }).join('');
+
+                    return `
+                        <div class="math-card" onclick="openCarouselCard('${task.task_id}')">
+                            <div class="card-status">已完成</div>
+                            <div class="card-graph">
+                                <img src="/api/tasks/${task.task_id}/preview" alt="" loading="lazy"
+                                     onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <span class="card-graph-icon" style="display:none">${icon}</span>
+                            </div>
+                            <div class="card-title">${escapeHtml(task.title || task.prompt || '')}</div>
+                            <div class="card-desc">${escapeHtml(task.prompt || '')}</div>
+                            <div class="card-tags">${tagsHtml}</div>
+                        </div>`;
+                }
+
+                // 复制一份实现无缝循环
+                const cardsHtml = completed.map(makeCard).join('');
+                track.innerHTML = cardsHtml + cardsHtml;
+
+            } catch (err) {
+                console.error('轮播加载失败:', err);
+                track.innerHTML = '';
+            }
+        }
+
+        function openCarouselCard(taskId) {
+            window.location.href = `/video.html?task_id=${taskId}`;
+        }
+
+        // ==================== 文件上传 ====================
+        let uploadedFileText = "";  // 存储解析后的文件内容
+        let uploadedFileName = "";  // 存储文件名
+
+        function triggerDocUpload() {
+            showToast('请上传 docx/pdf/txt 格式文档（单次仅识别 1 道题）', 'info');
+            document.getElementById('doc-upload').click();
+        }
+
+        document.getElementById('doc-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['docx', 'doc', 'pdf', 'txt'].includes(ext)) {
+                showToast('请上传 docx/doc/pdf/txt 格式文档', 'error');
+                return;
+            }
+
+            // 显示正在解析
+            searchInput.value = `正在解析 ${file.name}...`;
+            searchInput.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/api/parse-file', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.detail || '解析失败');
+
+                uploadedFileText = data.text;
+                uploadedFileName = file.name;
+                searchInput.value = `📎 ${file.name}（已选择，可补充文字后回车）`;
+                showToast(`文件解析成功，${data.length} 字`, 'success');
+            } catch (err) {
+                uploadedFileText = "";
+                uploadedFileName = "";
+                searchInput.value = "";
+                showToast('文件解析失败：' + err.message, 'error');
+            } finally {
+                searchInput.disabled = false;
+                // 清空 input 允许重复选择同一文件
+                e.target.value = '';
+            }
+        });
+
+        // 输入框获得焦点时，如果显示的是文件名，清空以便输入
+        searchInput.addEventListener('focus', () => {
+            if (uploadedFileName && (searchInput.value.startsWith('📎') || searchInput.value.startsWith('🖼️'))) {
+                searchInput.value = '';
+            }
+        });
+
+        // ==================== 图片上传 ====================
+        document.getElementById('img-upload').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (!['jpg', 'jpeg', 'png', 'bmp', 'webp', 'gif'].includes(ext)) {
+                showToast('请上传图片格式文件', 'error');
+                return;
+            }
+
+            // 显示正在识别
+            searchInput.value = `🔍 正在识别图片中的题目...`;
+            searchInput.disabled = true;
+
+            try {
+                const formData = new FormData();
+                formData.append('file', file);
+                const res = await fetch('/api/parse-file', { method: 'POST', body: formData });
+                const data = await res.json();
+
+                if (!res.ok) throw new Error(data.detail || '识别失败');
+
+                uploadedFileText = data.text;
+                uploadedFileName = file.name;
+                searchInput.value = `🖼️ ${file.name}（已识别，可补充文字后回车）`;
+                showToast(`图片识别成功，${data.length} 字`, 'success');
+            } catch (err) {
+                uploadedFileText = "";
+                uploadedFileName = "";
+                searchInput.value = "";
+                showToast('图片识别失败：' + err.message, 'error');
+            } finally {
+                searchInput.disabled = false;
+                e.target.value = '';
+            }
+        });
+
+        // 输入框失去焦点时，如果为空且有文件，恢复文件名显示
+        searchInput.addEventListener('blur', () => {
+            if (uploadedFileName && !searchInput.value.trim()) {
+                const icon = uploadedFileName.match(/\.(jpg|jpeg|png|bmp|webp|gif)$/i) ? '🖼️' : '📎';
+                searchInput.value = `${icon} ${uploadedFileName}（已选择，可补充文字后回车）`;
+            }
+        });
+    </script>
+    <script src="/static/auth.js?v=2"></script>
+</body>
+
+</html>

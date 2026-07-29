@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>教学动画 - 象数演易</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@500;700;900&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink-black: #2B2B2B;
+            --ink-grey: #5A6A76;
+            --paper-bg: #F7F5F0;
+            --primary-red: #B83B43;
+            --primary-blue: #3E5C76;
+            --jade-green: #7D9F88;
+            --border-color: #E0DCD3;
+            --font-serif: "Noto Serif SC", "Songti SC", serif;
+            --font-sans: "Noto Sans SC", "PingFang SC", sans-serif;
+            --font-decorative: "Ma Shan Zheng", cursive;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-sans);
+            background: var(--paper-bg);
+            color: var(--ink-black);
+            background-image: radial-gradient(#E8E6E1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* ── Header (与index一致) ── */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 12px 40px;
+            background: rgba(255,255,255,0.9); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; transition: opacity 0.2s; }
+        .logo:hover { opacity: 1; }
+        .logo-wrapper {
+            position: relative; width: 50px; height: 50px;
+            display: flex; justify-content: center; align-items: center;
+        }
+        .logo-wrapper .logo-icon {
+            width: 50px; height: 50px; z-index: 10;
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+            display: flex; align-items: center; justify-content: center;
+            font-family: var(--font-decorative); font-size: 36px; color: var(--primary-blue);
+        }
+        .logo-wrapper .tech-ring {
+            position: absolute; width: 100%; height: 100%;
+            border: 2px dashed #546e7a; border-radius: 50%;
+            opacity: 0; transform: scale(0.8) rotate(0deg); transition: all 0.5s ease;
+        }
+        .logo:hover .logo-wrapper .logo-icon,
+        .logo-wrapper:hover .logo-icon { transform: rotate(360deg); }
+        .logo:hover .logo-wrapper .tech-ring,
+        .logo-wrapper:hover .tech-ring { opacity: 0.6; transform: scale(1.1) rotate(-180deg); }
+        .logo-text {
+            font-family: var(--font-serif); font-size: 26px; font-weight: 700;
+            color: var(--primary-blue); letter-spacing: 2px;
+        }
+        .nav-search { display: flex; align-items: center; gap: 8px; position: relative; }
+        .nav-search input {
+            width: 280px; padding: 8px 16px; border: 1px solid var(--border-color);
+            border-radius: 999px; font-size: 14px; background: #fff; outline: none;
+        }
+        .nav-search input:focus { border-color: var(--primary-blue); }
+        .nav-search-btn {
+            display: flex; align-items: center; justify-content: center;
+            width: 36px; height: 36px; border: none; border-radius: 50%;
+            background: var(--primary-blue); color: #fff; cursor: pointer;
+            flex-shrink: 0; transition: background 0.2s;
+        }
+        .nav-search-btn:hover { background: #2d4a5e; }
+        .search-dropdown {
+            position: absolute; top: 100%; left: 0; width: 400px; margin-top: 8px;
+            background: #fff; border: 1px solid var(--border-color); border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12); max-height: 400px;
+            overflow-y: auto; z-index: 999; padding: 8px;
+        }
+        .search-dropdown-item {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; border-radius: 8px; cursor: pointer; transition: background 0.15s;
+        }
+        .search-dropdown-item:hover { background: #f7f5f0; }
+        .search-dropdown-item .item-icon { font-size: 24px; flex-shrink: 0; }
+        .search-dropdown-item .item-title {
+            font-size: 14px; color: var(--ink-black);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .search-dropdown-empty { text-align: center; padding: 20px; color: var(--ink-grey); font-size: 14px; }
+        .nav-actions { display: flex; align-items: center; gap: 24px; }
+        .nav-link { text-decoration: none; }
+        .top-action-btn {
+            position: relative; overflow: hidden; border-radius: 999px;
+            padding: 10px 18px; border: 1.5px solid transparent; min-height: 44px;
+            font-family: var(--font-serif); font-size: 16px; font-weight: 800;
+            letter-spacing: 0.08em; color: var(--primary-blue); text-decoration: none;
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            box-shadow: 0 8px 18px rgba(62,92,118,0.12), inset 0 1px 0 rgba(255,255,255,0.72);
+            backdrop-filter: blur(8px);
+            transition: transform 0.22s, box-shadow 0.22s, border-color 0.22s, background 0.22s, color 0.22s;
+            cursor: pointer; background: transparent;
+        }
+        .top-action-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(120deg, rgba(255,255,255,0.35), rgba(255,255,255,0));
+            opacity: 0.8; pointer-events: none;
+        }
+        .top-action-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 24px rgba(62,92,118,0.18), inset 0 1px 0 rgba(255,255,255,0.85); }
+        .top-action-login {
+            background: linear-gradient(180deg, rgba(255,255,255,0.95), rgba(243,239,230,0.96));
+            border-color: rgba(62,92,118,0.55); color: var(--primary-blue);
+        }
+        .top-action-login:hover { border-color: rgba(62,92,118,0.95); color: #1f3342; }
+        .top-action-btn .btn-text { position: relative; z-index: 1; }
+        .top-action-btn .btn-shine {
+            position: absolute; inset: 0; transform: translateX(-120%);
+            background: linear-gradient(120deg, transparent 35%, rgba(255,255,255,0.5) 50%, transparent 65%);
+            transition: transform 0.55s ease; pointer-events: none;
+        }
+        .top-action-btn:hover .btn-shine { transform: translateX(120%); }
+        .top-action-btn .btn-glow {
+            position: absolute; inset: -18px; border-radius: inherit;
+            background: radial-gradient(circle, rgba(184,59,67,0.16) 0%, rgba(184,59,67,0) 65%);
+            opacity: 0; transition: opacity 0.22s; pointer-events: none;
+        }
+        .top-action-btn:hover .btn-glow { opacity: 1; }
+        @media (max-width: 768px) {
+            header { padding: 10px 16px; }
+            .logo-text { font-size: 20px; }
+            .logo-wrapper, .logo-wrapper .logo-icon { width: 36px; height: 36px; font-size: 24px; }
+            .nav-search input { width: 160px; }
+            .nav-search-btn { width: 30px; height: 30px; }
+        }
+
+        /* ── Layout ── */
+        .page-layout {
+            max-width: 1200px; margin: 0 auto; padding: 24px 40px;
+            display: grid; grid-template-columns: 1fr 300px; gap: 24px;
+        }
+        @media (max-width: 900px) {
+            .page-layout { grid-template-columns: 1fr; padding: 16px; }
+            header { padding: 12px 16px; }
+            .nav-search input { width: 160px; }
+        }
+
+        /* ── Main column ── */
+        .video-title { font-family: var(--font-serif); font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+        .video-tags { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tag { font-size: 12px; padding: 4px 12px; border-radius: 999px; font-weight: 500; }
+        .tag-main-model { background: #FFF3E0; color: #E65100; }
+        .tag-main-data { background: #E8F5E9; color: #2E7D32; }
+        .tag-main-spatial { background: #E3F2FD; color: #1565C0; }
+        .tag-main-geometric { background: #F3E5F5; color: #7B1FA2; }
+        .tag-main-symbol { background: #FBE9E7; color: #BF360C; }
+        .tag-main-quantity { background: #E0F2F1; color: #00695C; }
+        .tag-main-number { background: #FFF8E1; color: #F57F17; }
+        .tag-main-reasoning { background: #EFEBE9; color: #4E342E; }
+        .tag-main-operation { background: #E8EAF6; color: #283593; }
+        .tag-sub { background: #f5f5f5; color: var(--ink-grey); }
+
+        /* iframe card */
+        .video-card {
+            background: #fff; border-radius: 12px; overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .video-card-header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; border-bottom: 1px solid var(--border-color);
+        }
+        .video-card-header h2 { font-size: 16px; font-weight: 600; }
+        .video-card-header .fs-btn {
+            padding: 4px 10px; border: 1px solid var(--border-color);
+            border-radius: 6px; background: #fff; cursor: pointer;
+            font-size: 12px; color: var(--ink-grey);
+        }
+        .video-card-header .fs-btn:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .video-card iframe {
+            width: 100%; height: 500px; border: none; display: block; background: #fdfbf7;
+        }
+        .video-card-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 12px 16px; border-top: 1px solid var(--border-color);
+        }
+        .video-meta { font-size: 13px; color: var(--ink-grey); }
+        .video-meta strong { color: var(--ink-black); font-weight: 500; }
+        .video-actions { display: flex; gap: 4px; }
+        .video-actions button {
+            display: flex; align-items: center; gap: 4px;
+            padding: 6px 14px; border: 1px solid var(--border-color);
+            border-radius: 8px; background: #fff; cursor: pointer;
+            font-size: 13px; color: var(--ink-grey); transition: all 0.2s;
+        }
+        .video-actions button:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .video-actions button svg { width: 16px; height: 16px; }
+
+        /* ── 生成中状态 ── */
+        .generating-box {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            min-height: 400px; padding: 40px 20px; text-align: center;
+        }
+        .generating-icon {
+            width: 80px; height: 80px; margin-bottom: 20px;
+            position: relative;
+        }
+        .generating-icon .ring {
+            position: absolute; inset: 0; border: 3px solid #e0dcd3;
+            border-top-color: var(--primary-blue); border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+        }
+        .generating-icon .ring:nth-child(2) {
+            inset: 10px; border-top-color: var(--primary-red);
+            animation-duration: 1.8s; animation-direction: reverse;
+        }
+        .generating-icon .dot {
+            position: absolute; top: 50%; left: 50%; width: 8px; height: 8px;
+            margin: -4px 0 0 -4px; background: var(--accent-gold); border-radius: 50%;
+        }
+        .generating-title { font-size: 18px; font-weight: 600; margin-bottom: 8px; color: var(--ink-black); }
+        .generating-desc { font-size: 14px; color: var(--ink-grey); line-height: 1.6; max-width: 400px; margin-bottom: 20px; }
+        .generating-progress {
+            font-size: 32px; font-weight: 700; color: var(--primary-blue);
+            font-family: var(--font-serif);
+        }
+        .generating-bar {
+            width: 200px; height: 4px; background: #e0dcd3; border-radius: 2px;
+            margin-top: 8px; overflow: hidden;
+        }
+        .generating-bar-fill {
+            height: 100%; background: var(--primary-blue); border-radius: 2px;
+            transition: width 0.5s ease;
+        }
+        .generating-status { font-size: 13px; color: var(--ink-grey); margin-top: 12px; }
+
+        /* ── Sidebar ── */
+        .sidebar-card {
+            background: #fff; border-radius: 12px; padding: 20px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .sidebar-card h3 {
+            font-family: var(--font-serif); font-size: 16px;
+            font-weight: 600; margin-bottom: 12px; color: var(--ink-black);
+        }
+        .sidebar-card p { font-size: 13px; color: var(--ink-grey); line-height: 1.6; margin-bottom: 16px; }
+        .sidebar-card .ai-btn {
+            width: 100%; padding: 10px; border: none; border-radius: 8px;
+            background: var(--primary-red); color: #fff; font-size: 14px;
+            cursor: not-allowed; opacity: 0.6;
+        }
+        .sidebar-card .related-title { font-size: 14px; font-weight: 500; margin-bottom: 10px; }
+        .related-item {
+            display: flex; gap: 10px; padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5; cursor: pointer;
+        }
+        .related-item:last-child { border-bottom: none; }
+        .related-item:hover .related-name { color: var(--primary-blue); }
+        .related-icon { font-size: 24px; }
+        .related-name { font-size: 13px; font-weight: 500; transition: color 0.2s; }
+
+        /* ── Comment ── */
+        .comment-section {
+            margin-top: 24px; background: #fff; border-radius: 12px;
+            padding: 20px; border: 1px solid var(--border-color);
+        }
+        .comment-header { font-size: 15px; font-weight: 600; margin-bottom: 12px; }
+        .comment-input {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border-color);
+            border-radius: 8px; font-size: 14px; resize: none; outline: none;
+            font-family: var(--font-sans);
+        }
+        .comment-input:focus { border-color: var(--primary-blue); }
+        .comment-login { text-align: center; margin: 12px 0; font-size: 13px; color: var(--ink-grey); }
+        .comment-login a { color: var(--primary-blue); text-decoration: none; }
+        .comment-empty { text-align: center; padding: 24px; color: var(--ink-grey); font-size: 13px; }
+
+        /* ── Loading ── */
+        .loading { display: flex; align-items: center; justify-content: center; height: 400px; color: var(--ink-grey); font-size: 15px; }
+        .loading::after { content: ''; width: 20px; height: 20px; border: 3px solid var(--border-color); border-top-color: var(--primary-blue); border-radius: 50%; margin-left: 10px; animation: spin 0.8s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Footer ── */
+        footer {
+            max-width: 1200px; margin: 40px auto 0; padding: 24px 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex; justify-content: space-between; gap: 40px;
+            font-size: 13px; color: var(--ink-grey);
+        }
+        .footer-social { display: flex; gap: 16px; }
+        .footer-social .social-box {
+            width: 100px; height: 100px; border-radius: 8px;
+            border: 1px solid var(--border-color); display: flex;
+            align-items: center; justify-content: center; font-size: 12px;
+            color: var(--ink-grey); background: #fff;
+        }
+        .footer-info { text-align: right; line-height: 1.8; }
+        .footer-info a { color: var(--ink-grey); text-decoration: none; }
+        .footer-info a:hover { color: var(--primary-blue); }
+    </style>
+</head>
+<body>
+
+<!-- Header (与index一致) -->
+<header>
+    <a href="/" class="logo">
+        <div class="logo-wrapper">
+            <div class="tech-ring"></div>
+            <div class="logo-icon">易</div>
+        </div>
+        <span class="logo-text">象数演易</span>
+    </a>
+    <div class="nav-search">
+        <input type="text" placeholder="输入题目后回车..." id="headerSearchInput" onkeydown="if(event.key==='Enter'){searchFromHeader();return false;}">
+        <button class="nav-search-btn" onclick="searchFromHeader()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+        </button>
+        <div class="search-dropdown" id="searchDropdown" style="display:none;"></div>
+    </div>
+    <div class="nav-actions">
+        <a href="/" class="nav-link top-action-btn" style="font-size:14px;">返回首页</a>
+        <a href="javascript:void(0)" class="nav-link top-action-btn top-action-login" onclick="showLoginModal(); return false;">
+            <span class="btn-glow"></span>
+            <span class="btn-shine"></span>
+            <span class="btn-text">登入</span>
+        </a>
+    </div>
+</header>
+
+<!-- Main Layout -->
+<div class="page-layout">
+    <!-- Left Column -->
+    <div class="main-column">
+        <h1 class="video-title" id="videoTitle">加载中...</h1>
+        <div class="video-tags" id="videoTags"></div>
+
+        <div class="video-card">
+            <div class="video-card-header">
+                <h2 id="cardTitle">教学动画</h2>
+                <button class="fs-btn" id="fsBtn" onclick="openFullscreen()" style="display:none;">⛶ 全屏</button>
+            </div>
+            <div id="iframeWrap">
+                <!-- 生成中状态 -->
+                <div class="generating-box" id="generatingEl">
+                    <div class="generating-icon">
+                        <div class="ring"></div>
+                        <div class="ring"></div>
+                        <div class="dot"></div>
+                    </div>
+                    <div class="generating-title">教学内容生成中...</div>
+                    <div class="generating-desc">
+                        您的动画生成预计需要等待50秒。您可以先探寻「已生成的讲解」或「探寻更多相似推演」，稍后返回查看生成进度和结果。
+                    </div>
+                    <div class="generating-progress" id="progressNum">0%</div>
+                    <div class="generating-bar">
+                        <div class="generating-bar-fill" id="progressBar" style="width:0%"></div>
+                    </div>
+                    <div class="generating-status" id="progressStatus">等待开始...</div>
+                </div>
+                <!-- 完成后显示iframe -->
+                <iframe id="teachingIframe" style="display:none;" scrolling="auto"></iframe>
+            </div>
+            <div class="video-card-footer">
+                <div class="video-meta">
+                    <strong>象数演易</strong><br>
+                    <span id="timeInfo">刚刚 · 0次观看</span>
+                </div>
+                <div class="video-actions">
+                    <button onclick="this.classList.toggle('liked');updateLike(this)">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14zM4 22H2V11h2"/></svg>
+                        <span>0</span>
+                    </button>
+                    <button><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> 收藏</button>
+                    <button onclick="showToast('下载功能开发中')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> 下载</button>
+                    <button onclick="showToast('分享链接已复制')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> 分享</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="comment-section">
+            <div class="comment-header">0 条论述</div>
+            <textarea class="comment-input" rows="2" placeholder="添加论述..." disabled></textarea>
+            <div class="comment-login"><a href="javascript:void(0)" onclick="showLoginModal()">登录</a> 后发表评论</div>
+            <div class="comment-empty">暂无评论，快来发表第一条吧</div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar -->
+    <div class="sidebar-column">
+        <div class="sidebar-card">
+            <h3>问易解惑，明理通数</h3>
+            <p>AI助教可以帮助你理解每一步的数学原理，解答你的疑问。</p>
+            <button class="ai-btn" disabled>登录后使用AI助教</button>
+        </div>
+
+        <div class="sidebar-card" style="margin-top:16px;">
+            <div class="related-title">探寻更多相似推演</div>
+            <div id="relatedList">
+                <div class="loading" style="height:60px;font-size:13px;">加载中</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#2B2B2B;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:9999;transition:opacity 0.3s;"></div>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-social">
+        <div class="social-box">象数演易公众号</div>
+        <div class="social-box">官方微博</div>
+        <div class="social-box">开发者微信</div>
+    </div>
+    <div class="footer-info">
+        <div><a href="javascript:void(0)">用户协议</a> / <a href="javascript:void(0)">隐私政策</a></div>
+        <div>联系电话：18666666666（张三）</div>
+        <div>邮箱：xxxx@tipdm.com</div>
+        <div>官方QQ群：123456789</div>
+        <div>皖ICP备2025106531号-1</div>
+    </div>
+</footer>
+
+<script src="/static/auth.js?v=3"></script>
+<script>
+    const TAG_CLASS_MAP = {
+        '模型意识': 'tag-main-model', '数据意识': 'tag-main-data',
+        '空间观念': 'tag-main-spatial', '几何直观': 'tag-main-geometric',
+        '符号意识': 'tag-main-symbol', '量感': 'tag-main-quantity',
+        '数感': 'tag-main-number', '推理意识': 'tag-main-reasoning',
+        '运算能力': 'tag-main-operation',
+    };
+
+    const ICON_MAP = {
+        '几何': '📐', '三角': '📐', '勾股': '📐', '平行': '📐',
+        '长方': '📦', '正方': '📦', '体积': '📦',
+        '函数': '📈', '一次': '📈', '二次': '📈',
+        '加法': '🔢', '减法': '🔢', '乘法': '🔢', '除法': '🔢', '运算': '🔢', '计算': '🔢',
+        '面积': '📏', '周长': '📏', '方程': '🔣', '鸡兔': '🐔',
+    };
+    function getIcon(t) { for (const [k,v] of Object.entries(ICON_MAP)) { if (t.includes(k)) return v; } return '📐'; }
+
+    const STATUS_TEXT = {
+        'pending': '等待开始...', 'analyzing': '🔍 分析题目中...',
+        'planning': '📋 设计动画方案...', 'generating': '🎨 生成交互动画...',
+        'generating_preview': '🖼️ 生成封面...', 'assembling': '🔧 组装中...',
+        'completed': '✅ 生成完成！', 'failed': '❌ 生成失败',
+    };
+
+    let pollTimer = null;
+
+    async function loadVideo() {
+        const params = new URLSearchParams(window.location.search);
+        let taskId = params.get('task_id');
+        const prompt = params.get('prompt');
+        const uploadId = params.get('upload_id');
+
+        // 情况1：从 index.html 跳转过来，带 prompt 参数 → 创建任务
+        if (prompt && !taskId) {
+            document.getElementById('videoTitle').textContent = prompt.length > 30 ? prompt.substring(0,30)+'...' : prompt;
+            document.getElementById('cardTitle').textContent = '教学动画';
+            document.title = prompt.substring(0,20) + ' - 象数演易';
+            try {
+                const formData = new FormData();
+                formData.append('prompt', prompt);
+                const res = await fetch('/api/tasks', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok && data.task_id) {
+                    taskId = data.task_id;
+                    history.replaceState(null, '', `/video.html?task_id=${taskId}`);
+                } else {
+                    showFailed();
+                    return;
+                }
+            } catch (e) {
+                showFailed();
+                return;
+            }
+        }
+
+        // 情况2：从 index.html 跳转过来，带 upload_id → 从 localStorage 读取
+        if (uploadId && !taskId) {
+            const storedPrompt = localStorage.getItem(`upload_${uploadId}`);
+            const displayName = localStorage.getItem(`upload_name_${uploadId}`) || '已上传文件';
+            localStorage.removeItem(`upload_${uploadId}`);
+            localStorage.removeItem(`upload_name_${uploadId}`);
+
+            if (!storedPrompt) {
+                document.getElementById('videoTitle').textContent = '文件内容已过期';
+                return;
+            }
+
+            // 显示文件名而非内容
+            document.getElementById('videoTitle').textContent = displayName;
+            document.getElementById('cardTitle').textContent = displayName;
+            document.title = displayName + ' - 象数演易';
+
+            try {
+                const formData = new FormData();
+                formData.append('prompt', storedPrompt);
+                const res = await fetch('/api/tasks', { method: 'POST', body: formData });
+                const data = await res.json();
+                if (res.ok && data.task_id) {
+                    taskId = data.task_id;
+                    history.replaceState(null, '', `/video.html?task_id=${taskId}`);
+                } else {
+                    showFailed();
+                    return;
+                }
+            } catch (e) {
+                showFailed();
+                return;
+            }
+        }
+
+        if (!taskId) {
+            document.getElementById('videoTitle').textContent = '缺少参数';
+            return;
+        }
+
+        // 加载任务信息
+        let taskTitle = '教学动画', taskTags = null, createdAt = '', taskStatus = 'pending';
+        try {
+            const res = await fetch(`/api/tasks/${taskId}`);
+            if (res.ok) {
+                const task = await res.json();
+                // 如果已有 displayName（文件上传），不要用 task.prompt 覆盖
+                const currentTitle = document.getElementById('videoTitle').textContent;
+                const hasDisplayName = currentTitle && !currentTitle.includes('加载中') && !currentTitle.includes('缺少');
+                if (hasDisplayName) {
+                    // 保留 displayName，只在 task 有正式 title 时更新
+                    if (task.title) {
+                        taskTitle = task.title;
+                    } else {
+                        taskTitle = currentTitle;
+                    }
+                } else {
+                    taskTitle = task.title || (task.prompt && task.prompt.length > 50 ? task.prompt.substring(0,50)+'...' : task.prompt) || '教学动画';
+                }
+                taskTags = task.tags;
+                createdAt = task.created_at;
+                taskStatus = task.status;
+                document.title = taskTitle + ' - 象数演易';
+            }
+        } catch (e) {}
+
+        document.getElementById('videoTitle').textContent = taskTitle;
+        document.getElementById('cardTitle').textContent = taskTitle;
+
+        // Tags
+        const tagsEl = document.getElementById('videoTags');
+        if (taskTags) {
+            let html = '';
+            if (taskTags.main_tag) {
+                const cls = TAG_CLASS_MAP[taskTags.main_tag] || 'tag-sub';
+                html += `<span class="tag ${cls}">${taskTags.main_tag}</span>`;
+            }
+            (taskTags.sub_tags || []).forEach(t => {
+                html += `<span class="tag tag-sub">${t}</span>`;
+            });
+            tagsEl.innerHTML = html;
+        }
+
+        // Time
+        if (createdAt) {
+            const d = new Date(createdAt);
+            const now = new Date();
+            const diff = Math.floor((now - d) / 1000);
+            let timeStr = '刚刚';
+            if (diff > 86400) timeStr = Math.floor(diff/86400) + '天前';
+            else if (diff > 3600) timeStr = Math.floor(diff/3600) + '小时前';
+            else if (diff > 60) timeStr = Math.floor(diff/60) + '分钟前';
+            document.getElementById('timeInfo').textContent = timeStr + ' · ' + Math.floor(Math.random()*20+1) + '次观看';
+        }
+
+        // 根据状态决定显示什么
+        if (taskStatus === 'completed') {
+            showCompleted(taskId);
+        } else if (taskStatus === 'failed') {
+            showFailed();
+        } else {
+            // 生成中 → 开始轮询
+            startPolling(taskId);
+        }
+
+        // Load related
+        loadRelated(taskId);
+    }
+
+    function startPolling(taskId) {
+        updateProgress(0, '等待开始...');
+        async function poll() {
+            try {
+                const res = await fetch(`/api/tasks/${taskId}`);
+                if (!res.ok) return;
+                const task = await res.json();
+
+                updateProgress(task.progress || 0, STATUS_TEXT[task.status] || task.status);
+
+                if (task.status === 'completed') {
+                    // 更新标题和标签
+                    if (task.title) {
+                        document.getElementById('videoTitle').textContent = task.title;
+                        document.getElementById('cardTitle').textContent = task.title;
+                        document.title = task.title + ' - 象数演易';
+                    }
+                    if (task.tags) {
+                        const tagsEl = document.getElementById('videoTags');
+                        let html = '';
+                        if (task.tags.main_tag) {
+                            const cls = TAG_CLASS_MAP[task.tags.main_tag] || 'tag-sub';
+                            html += `<span class="tag ${cls}">${task.tags.main_tag}</span>`;
+                        }
+                        (task.tags.sub_tags || []).forEach(t => { html += `<span class="tag tag-sub">${t}</span>`; });
+                        tagsEl.innerHTML = html;
+                    }
+                    showCompleted(taskId);
+                    return; // 停止轮询
+                } else if (task.status === 'failed') {
+                    showFailed();
+                    return; // 停止轮询
+                }
+            } catch (e) {
+                console.warn('Poll error:', e);
+            }
+            // 继续轮询
+            setTimeout(() => poll(), 4000);
+        }
+        poll();
+    }
+
+    function updateProgress(pct, statusText) {
+        document.getElementById('progressNum').textContent = pct + '%';
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('progressStatus').textContent = statusText;
+    }
+
+    async function showCompleted(taskId) {
+        try {
+            const htmlRes = await fetch(`/api/tasks/${taskId}/html`);
+            if (!htmlRes.ok) throw new Error('not found');
+            const html = await htmlRes.text();
+
+            document.getElementById('generatingEl').style.display = 'none';
+            const iframe = document.getElementById('teachingIframe');
+            iframe.srcdoc = html;
+            iframe.style.display = 'block';
+            document.getElementById('fsBtn').style.display = '';
+
+            iframe.onload = () => {
+                try { const h = iframe.contentDocument?.documentElement?.scrollHeight; if (h) iframe.style.height = Math.max(h, 400) + 'px'; } catch(e) {}
+            };
+        } catch (e) {
+            showFailed();
+        }
+    }
+
+    function showFailed() {
+        document.getElementById('generatingEl').innerHTML = `
+            <div style="padding:60px 20px;text-align:center;">
+                <div style="font-size:48px;margin-bottom:16px;">⚠️</div>
+                <div style="font-size:18px;font-weight:600;margin-bottom:8px;color:var(--primary-red);">生成失败</div>
+                <div style="font-size:14px;color:var(--ink-grey);margin-bottom:20px;">请返回首页重新尝试</div>
+                <a href="/" style="display:inline-block;padding:10px 24px;background:var(--primary-blue);color:#fff;border-radius:8px;text-decoration:none;font-size:14px;">返回首页</a>
+            </div>
+        `;
+    }
+
+    async function loadRelated(currentId) {
+        try {
+            const res = await fetch('/api/tasks');
+            if (!res.ok) return;
+            const tasks = await res.json();
+            const related = tasks.filter(t => t.task_id !== currentId && t.status === 'completed').slice(0, 5);
+            const el = document.getElementById('relatedList');
+            if (related.length === 0) { el.innerHTML = '<div style="color:var(--ink-grey);font-size:13px;padding:8px 0;">暂无推荐</div>'; return; }
+            el.innerHTML = related.map(t => {
+                const icon = getIcon(t.title || t.prompt || '');
+                const title = t.title || t.prompt || '';
+                return `<div class="related-item" onclick="window.location.href='/video.html?task_id=${t.task_id}'">
+                    <span class="related-icon">${icon}</span>
+                    <span class="related-name">${title.length > 20 ? title.substring(0,20)+'...' : title}</span>
+                </div>`;
+            }).join('');
+        } catch (e) {}
+    }
+
+    function openFullscreen() {
+        const iframe = document.getElementById('teachingIframe');
+        if (iframe.requestFullscreen) iframe.requestFullscreen();
+    }
+
+    // ==================== Header 搜索下拉 ====================
+    let _allTasks = [];
+
+    async function loadAllTasks() {
+        try {
+            const res = await fetch('/api/tasks');
+            if (res.ok) _allTasks = await res.json();
+        } catch (e) {}
+    }
+    loadAllTasks();
+
+    function searchFromHeader() {
+        const q = document.getElementById('headerSearchInput').value.trim().toLowerCase();
+        const dropdown = document.getElementById('searchDropdown');
+        if (!q) { dropdown.style.display = 'none'; return; }
+
+        const ICON_MAP = {
+            '几何': '📐', '三角': '📐', '勾股': '📐', '平行': '📐',
+            '长方': '📦', '正方': '📦', '体积': '📦',
+            '函数': '📈', '一次': '📈', '二次': '📈',
+            '加法': '🔢', '减法': '🔢', '乘法': '🔢', '除法': '🔢', '运算': '🔢', '计算': '🔢', '混合': '🔢',
+            '面积': '📏', '周长': '📏', '方程': '🔣', '鸡兔': '🐔',
+        };
+        function getIcon(t) { for (const [k,v] of Object.entries(ICON_MAP)) { if (t.includes(k)) return v; } return '📐'; }
+
+        const results = _allTasks.filter(t => {
+            const title = (t.title || t.prompt || '').toLowerCase();
+            return title.includes(q);
+        });
+
+        if (results.length === 0) {
+            dropdown.innerHTML = '<div class="search-dropdown-empty">未找到相关案例</div>';
+        } else {
+            dropdown.innerHTML = results.slice(0, 8).map(t => {
+                const title = t.title || t.prompt || '';
+                const icon = getIcon(title);
+                return `<div class="search-dropdown-item" onclick="window.location.href='/video.html?task_id=${t.task_id}'">
+                    <span class="item-icon">${icon}</span>
+                    <span class="item-title">${title}</span>
+                </div>`;
+            }).join('');
+        }
+        dropdown.style.display = 'block';
+    }
+
+    // 点击外部关闭下拉
+    document.addEventListener('click', (e) => {
+        const search = document.querySelector('.nav-search');
+        const dropdown = document.getElementById('searchDropdown');
+        if (search && dropdown && !search.contains(e.target)) {
+            dropdown.style.display = 'none';
+        }
+    });
+
+    function showToast(msg) {
+        const el = document.getElementById('toast');
+        el.textContent = msg; el.style.display = 'block'; el.style.opacity = '1';
+        setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.style.display = 'none', 300); }, 2000);
+    }
+
+    function updateLike(btn) {
+        const span = btn.querySelector('span');
+        const n = parseInt(span.textContent) || 0;
+        span.textContent = btn.classList.contains('liked') ? n + 1 : Math.max(0, n - 1);
+    }
+
+    loadVideo();
+</script>
+</body>
+</html>

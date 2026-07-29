@@ -1,0 +1,28 @@
+# Environment
+.env
+*.env.local
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Storage (generated files)
+storage/html/
+storage/previews/
+storage/metadata/
+
+# Reference files
+xsyy_reference.html
+css_auth.css
+js_page.js
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
