@@ -51,7 +51,7 @@
 ### 1. 克隆项目
 
 ```bash
-git clone https://github.com/your-username/teaching-animation-agent.git
+git clone https://github.com/apich/teaching-animation-agent.git
 cd teaching-animation-agent
 ```
 
