@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>揭秘洛必达法则：用导数解开‘0/0’的极限谜题</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>揭秘洛必达法则：用导数解开‘0/0’的极限谜题</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 坐标系 -->
+      <line x1="50" y1="200" x2="550" y2="200" stroke="black" />
+      <line x1="50" y1="50" x2="50" y2="350" stroke="black" />
+      <!-- 曲线f和g -->
+      <path d="M100,100 Q200,150 300,200 Q400,250 500,300" fill="none" stroke="blue" />
+      <path d="M100,300 Q200,250 300,200 Q400,150 500,100" fill="none" stroke="green" />
+      <!-- 红色虚线竖线 -->
+      <line x1="300" y1="50" x2="300" y2="350" stroke="red" stroke-dasharray="5,5" />
+      <!-- 问号 -->
+      <text x="310" y="100" font-size="20">？</text>
+      <!-- 标注 -->
+      <text x="310" y="120" font-size="14">f(a)/g(a) = 0/0</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>1. 遇到难题：极限是‘0/0’，怎么办？</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('求极限 \\lim_{x \\to a} \\frac{f(x)}{g(x)} 时，如果直接代入 x=a 得到 \\frac{0}{0} 或 \\frac{\\infty}{\\infty} 的形式，称为‘不定式’，直接计算无法得到结果。', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">看！直接把 x=a 塞进去，分子分母都‘归零’了，极限的值卡在那儿，我们没法直接得到答案。这就像一个悬案，需要新线索。</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 坐标轴 -->
+      <line x1="100" y1="300" x2="500" y2="300" stroke="black" stroke-width="2"/>
+      <text x="510" y="305">x</text>
+      <line x1="100" y1="300" x2="100" y2="50" stroke="black" stroke-width="2"/>
+      <text x="95" y="40">y</text>
+      
+      <!-- 点a -->
+      <circle cx="300" cy="300" r="3" fill="black"/>
+      <text x="300" y="320">a</text>
+      
+      <!-- 曲线f(x) -->
+      <path d="M100,300 Q200,100 300,300" stroke="blue" fill="none" stroke-width="2"/>
+      <text x="150" y="150" fill="blue">f(x)</text>
+      
+      <!-- 曲线g(x) -->
+      <path d="M100,300 C200,350 400,250 500,300" stroke="red" fill="none" stroke-width="2"/>
+      <text x="400" y="250" fill="red">g(x)</text>
+      
+      <!-- 切线：在x=350处 -->
+      <line x1="350" y1="200" x2="450" y2="300" stroke="blue" stroke-dasharray="5,5"/>
+      <text x="420" y="220" fill="blue">f'(x)</text>
+      
+      <line x1="350" y1="280" x2="450" y2="300" stroke="red" stroke-dasharray="5,5"/>
+      <text x="420" y="290" fill="red">g'(x)</text>
+      
+      <!-- 箭头表示趋近过程 -->
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+          <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+        </marker>
+      </defs>
+      <path d="M350,200 Q320,250 300,300" stroke="blue" fill="none" marker-end="url(#arrow)"/>
+      <path d="M350,280 Q320,290 300,300" stroke="red" fill="none" marker-end="url(#arrow)"/>
+      
+      <!-- 速度差异箭头 -->
+      <path d="M380,180 L400,180" stroke="blue" stroke-width="3" marker-end="url(#arrow)"/>
+      <path d="M380,270 L390,270" stroke="red" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <text x="410" y="175" fill="blue">快</text>
+      <text x="395" y="265" fill="red">慢</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>2. 新思路：比较它们在 a 点附近的‘变化速度’</h3>
+    <div class="step-text">
+      洛必达法则指出：如果 
+      <span x-html="katex.renderToString('\\lim_{x \\to a} \\frac{f(x)}{g(x)} \\text{ 是 } \\frac{0}{0} \\text{ 型，且 } f'(x) \\text{ 和 } g'(x) \\text{ 在 } a \\text{ 的某去心邻域内存在，} g'(x) \\neq 0，\\text{并且 } \\lim_{x \\to a} \\frac{f'(x)}{g'(x)} \\text{ 存在（或为无穷），则有 } \\lim_{x \\to a} \\frac{f(x)}{g(x)} = \\lim_{x \\to a} \\frac{f'(x)}{g'(x)}。\\text{关键洞察：两个都趋于0的函数，比值极限等于它们导数比的极限。', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">既然直接值比不出来，那我们比比它们‘奔向零’或‘奔向无穷’的速度！谁的导数（瞬时变化率）大，谁就‘跑’得更快。这个新极限往往更容易算。</div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 左侧坐标系及原函数 -->
+      <g transform="translate(120, 200)">
+        <line x1="-100" y1="0" x2="100" y2="0" stroke="#888" stroke-width="1"/>
+        <line x1="0" y1="-120" x2="0" y2="80" stroke="#888" stroke-width="1"/>
+        <text x="90" y="15" font-size="12">x</text>
+        <text x="5" y="-110" font-size="12">y</text>
+        <text x="-5" y="15" font-size="10">1</text>
+        <line x1="-100" y1="-96" x2="100" y2="-96" stroke="#666" stroke-width="0.5" stroke-dasharray="4"/>
+        <path d="M-90,30 C-60,-40 -20,-100 0,NaN" stroke="steelblue" stroke-width="2" fill="none"/>
+        <path d="M0,-100 C20,-100 60,-40 90,30" stroke="steelblue" stroke-width="2" fill="none"/>
+        <circle cx="0" cy="-100" r="3" fill="white" stroke="steelblue" stroke-width="2"/>
+        <text x="60" y="-60" font-size="12" fill="steelblue">y = sin(x)/x</text>
+        <text x="0" y="50" text-anchor="middle" font-size="10" fill="#555">x→0</text>
+      </g>
+      
+      <!-- 中间箭头及文字 -->
+      <g transform="translate(300, 150)">
+        <polygon points="0,0 -40,25 0,20 40,25" fill="#4CAF50" transform="translate(0,-12)"/>
+        <rect x="-50" y="-35" width="100" height="22" fill="white" stroke="#4CAF50" rx="3"/>
+        <text x="0" y="-20" text-anchor="middle" font-size="14" fill="#4CAF50">求导</text>
+      </g>
+      
+      <!-- 右侧坐标系及新函数 -->
+      <g transform="translate(480, 200)">
+        <line x1="-100" y1="0" x2="100" y2="0" stroke="#888" stroke-width="1"/>
+        <line x1="0" y1="-120" x2="0" y2="80" stroke="#888" stroke-width="1"/>
+        <text x="90" y="15" font-size="12">x</text>
+        <text x="5" y="-110" font-size="12">y</text>
+        <text x="-5" y="15" font-size="10">1</text>
+        <line x1="-100" y1="-96" x2="100" y2="-96" stroke="#666" stroke-width="0.5" stroke-dasharray="4"/>
+        <path d="M-90,30 C-50,-90 -20,-100 0,-96 C20,-92 50,-50 90,30" stroke="forestgreen" stroke-width="2" fill="none"/>
+        <circle cx="0" cy="-96" r="3" fill="forestgreen"/>
+        <text x="60" y="-60" font-size="12" fill="forestgreen">y = cos(x)</text>
+      </g>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>3. 动手计算：对分子分母分别求导再求极限</h3>
+    <div class="step-text">
+      <p>应用洛必达法则：</p>
+      <p>
+        <span x-html="katex.renderToString('\\lim_{x \\to 0} \\frac{\\sin x}{x} = \\lim_{x \\to 0} \\frac{\\cos x}{1} = 1', {throwOnError:false})"></span>
+      </p>
+    </div>
+    <div class="bubble">
+      原函数求导：<span x-html="katex.renderToString('\\sin x', {throwOnError:false})"></span> 的导数是 <span x-html="katex.renderToString('\\cos x', {throwOnError:false})"></span>， <span x-html="katex.renderToString('x', {throwOnError:false})"></span> 的导数是 <span x-html="katex.renderToString('1', {throwOnError:false})"></span>。现在算新极限 <span x-html="katex.renderToString('\\cos 0 / 1 = 1', {throwOnError:false})"></span>，多简单！这就是洛必达法则的威力。
+    </div>
+  </div>
+</div>
+<div x-show="currentStep === 3" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 标题 -->
+      <text x="300" y="30" text-anchor="middle" font-size="16" font-weight="bold">洛必达法则应用流程图</text>
+      <!-- 背景中的失败示例（淡化） -->
+      <text x="100" y="380" font-size="11" fill="#999" fill-opacity="0.6">
+        例：lim (sin x)/(x^2) 不定式 → lim (cos x)/(2x) = 0/0 → lim (-sin x)/2 = 0 ✓ 失败
+      </text>
+      <text x="400" y="380" font-size="11" fill="#999" fill-opacity="0.6">
+        例：lim (x^2)/(sin x) 不定式 → lim (2x)/(cos x) = 0/1 = 0 ✓ 成功
+      </text>
+      <!-- 流程图 -->
+      <!-- 开始 -->
+      <rect x="225" y="50" width="150" height="40" rx="5" fill="#f0f0f0" stroke="#333"/>
+      <text x="300" y="75" text-anchor="middle" font-size="12">1. 判断型式 (0/0 或 ∞/∞?)</text>
+      <!-- 箭头1 -->
+      <line x1="300" y1="90" x2="300" y2="120" stroke="#333" marker-end="url(#arrowhead)"/>
+      <!-- 决策框1 -->
+      <polygon points="225,130 375,130 300,170" fill="#fff" stroke="#333"/>
+      <text x="300" y="155" text-anchor="middle" font-size="11">满足型式?</text>
+      <!-- 否路径（向右） -->
+      <line x1="375" y1="130" x2="470" y2="130" stroke="#333" marker-end="url(#arrowhead)"/>
+      <rect x="470" y="115" width="110" height="30" rx="5" fill="#ffcccc"/>
+      <text x="525" y="135" text-anchor="middle" font-size="11">此路不通，换方法</text>
+      <!-- 是路径（向下） -->
+      <line x1="300" y1="170" x2="300" y2="200" stroke="#333" marker-end="url(#arrowhead)"/>
+      <!-- 下一步骤 -->
+      <rect x="200" y="210" width="200" height="40" rx="5" fill="#f0f0f0" stroke="#333"/>
+      <text x="300" y="235" text-anchor="middle" font-size="12">2. 确认 f'(x), g'(x) 存在且 g'(x)≠0</text>
+      <!-- 箭头2 -->
+      <line x1="300" y1="250" x2="300" y2="280" stroke="#333" marker-end="url(#arrowhead)"/>
+      <!-- 决策框2 -->
+      <polygon points="225,290 375,290 300,330" fill="#fff" stroke="#333"/>
+      <text x="300" y="315" text-anchor="middle" font-size="11">条件满足?</text>
+      <!-- 否路径（向右） -->
+      <line x1="375" y1="290" x2="470" y2="290" stroke="#333" marker-end="url(#arrowhead)"/>
+      <rect x="470" y="275" width="110" height="30" rx="5" fill="#ffcccc"/>
+      <text x="525" y="295" text-anchor="middle" font-size="11">此路不通，换方法</text>
+      <!-- 是路径（向下） -->
+      <line x1="300" y1="330" x2="300" y2="345" stroke="#333" marker-end="url(#arrowhead)"/>
+      <!-- 最终步骤 -->
+      <rect x="150" y="350" width="300" height="40" rx="5" fill="#e6ffe6" stroke="#333"/>
+      <text x="300" y="375" text-anchor="middle" font-size="12">3. 计算 lim [f'(x)/g'(x)]，得到答案或 ∞</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>4. 法则总结与注意事项</h3>
+    <div class="step-text">
+      <p>使用条件：</p>
+      <ul>
+        <li>必须是 <span x-html="katex.renderToString('\\frac{0}{0}', {throwOnError:false})"> 或 <span x-html="katex.renderToString('\\frac{\\infty}{\\infty}', {throwOnError:false})"> 型不定式。</li>
+        <li>在 <span x-html="katex.renderToString('a', {throwOnError:false})"> 点附近 <span x-html="katex.renderToString('f\'(x)', {throwOnError:false})">，<span x-html="katex.renderToString('g\'(x)', {throwOnError:false})"> 存在且 <span x-html="katex.renderToString('g\'(x)\\neq0', {throwOnError:false})">。</li>
+        <li>新极限 <span x-html="katex.renderToString('\\lim \\frac{f\'(x)}{g\'(x)}', {throwOnError:false})"> 存在或为 <span x-html="katex.renderToString('\\infty', {throwOnError:false})">。</li>
+      </ul>
+      <p>一次不行可以连续使用（多次使用）。</p>
+    </div>
+    <div class="bubble">
+      记住，洛必达法则不是万能钥匙！必须满足三个条件才能用。有时求完导反而更复杂，就要换方法。但它是一把非常锋利的工具，专门破解特定类型的极限谜题。
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "1. 遇到难题：极限是‘0/0’，怎么办？", "text": "求极限 $\\lim_{x \\to a} \\frac{f(x)}{g(x)}$ 时，如果直接代入 $x=a$ 得到 $\\frac{0}{0}$ 或 $\\frac{\\infty}{\\infty}$ 的形式，称为‘不定式’，直接计算无法得到结果。", "bubble": "看！直接把 $x=a$ 塞进去，分子分母都‘归零’了，极限的值卡在那儿，我们没法直接得到答案。这就像一个悬案，需要新线索。"}, {"title": "2. 新思路：比较它们在 a 点附近的‘变化速度’", "text": "洛必达法则指出：如果 $\\lim_{x \\to a} \\frac{f(x)}{g(x)}$ 是 $\\frac{0}{0}$ 型，且 $f'(x)$ 和 $g'(x)$ 在 $a$ 的某去心邻域内存在，$g'(x) \\neq 0$，并且 $\\lim_{x \\to a} \\frac{f'(x)}{g'(x)}$ 存在（或为无穷），则有 $\\lim_{x \\to a} \\frac{f(x)}{g(x)} = \\lim_{x \\to a} \\frac{f'(x)}{g'(x)}$。关键洞察：两个都趋于0的函数，比值极限等于它们导数比的极限。", "bubble": "既然直接值比不出来，那我们比比它们‘奔向零’或‘奔向无穷’的速度！谁的导数（瞬时变化率）大，谁就‘跑’得更快。这个新极限往往更容易算。"}, {"title": "3. 动手计算：对分子分母分别求导再求极限", "text": "应用洛必达法则：$\\lim_{x \\to 0} \\frac{\\sin x}{x} = \\lim_{x \\to 0} \\frac{\\cos x}{1} = 1$。", "bubble": "原函数求导：$\\sin x$ 的导数是 $\\cos x$， $x$ 的导数是 $1$。现在算新极限 $\\cos 0 / 1 = 1$，多简单！这就是洛必达法则的威力。"}, {"title": "4. 法则总结与注意事项", "text": "使用条件：1) 必须是 $\\frac{0}{0}$ 或 $\\frac{\\infty}{\\infty}$ 型不定式；2) 在 a 点附近 $f'(x)$，$g'(x)$ 存在且 $g'(x)\\neq0$；3) 新极限 $\\lim \\frac{f'(x)}{g'(x)}$ 存在或为 $\\infty$。一次不行可以再用（连续使用）。", "bubble": "记住，洛必达法则不是万能钥匙！必须满足三个条件才能用。有时求完导反而更复杂，就要换方法。但它是一把非常锋利的工具，专门破解特定类型的极限谜题。"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

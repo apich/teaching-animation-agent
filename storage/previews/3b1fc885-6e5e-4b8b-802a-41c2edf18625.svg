@@ -1,0 +1,12 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#F7F5F0"/>
+  <polygon points="150,80 250,80 200,180" stroke="#3E5C76" fill="none" stroke-width="2"/>
+  <text x="140" y="95" fill="#B83B43" font-size="12">A</text>
+  <text x="255" y="95" fill="#B83B43" font-size="12">B</text>
+  <text x="200" y="195" fill="#B83B43" font-size="12">C</text>
+  <text x="80" y="250" fill="#3E5C76" font-size="14">a/sin A = b/sin B = c/sin C</text>
+  <path d="M340,50 Q350,60 340,70 Q330,80 340,90" stroke="#3E5C76" fill="none" stroke-width="1.5"/>
+  <circle cx="345" cy="55" r="3" fill="#B83B43"/>
+  <circle cx="335" cy="75" r="3" fill="#B83B43"/>
+  <path d="M50,280 Q100,250 150,280" stroke="#3E5C76" fill="none" stroke-width="1"/>
+</svg>

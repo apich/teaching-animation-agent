@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>三角形面积公式推导</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+  <style>
+    body { 
+      font-family: 'Songti SC', 'SimSun', serif; 
+      background-color: #fdfbf7; 
+      background-image: 
+        radial-gradient(circle at 20% 80%, rgba(0, 0, 0, 0.02) 0%, transparent 30%),
+        radial-gradient(circle at 80% 20%, rgba(0, 0, 0, 0.02) 0%, transparent 30%),
+        linear-gradient(rgba(0, 0, 0, 0.01) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 0, 0, 0.01) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 40px 40px, 40px 40px;
+    }
+    
+    .paper-texture {
+      background-color: #fdfbf7;
+      border-radius: 2px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.06);
+    }
+    
+    .step-bubble {
+      position: relative;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border-left: 4px solid #4a7dff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+    
+    .step-bubble::before {
+      content: '';
+      position: absolute;
+      left: -10px;
+      top: 12px;
+      width: 0;
+      height: 0;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 10px solid #4a7dff;
+    }
+    
+    .highlight-box {
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+    
+    .triangle-highlight {
+      stroke-dasharray: 8 4;
+      animation: dash 1.5s linear infinite;
+    }
+    
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -24;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-stone-800" x-data="mathApp()" x-init="init()">
+  <!-- Header -->
+  <header class="p-4 border-b border-stone-300">
+    <h1 class="text-2xl font-bold text-center text-stone-700">三角形面积公式推导</h1>
+  </header>
+  
+  <!-- Main Content -->
+  <main class="flex flex-1 p-6 gap-6">
+    <!-- Left: SVG Canvas -->
+    <div class="w-2/3 paper-texture p-4">
+      <svg viewBox="0 0 800 500" class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid Background -->
+        <defs>
+          <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(0,0,0,0.05)" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        
+        <!-- Step 0: Original Triangle -->
+        <g x-show="currentStep === 0" class="transition-all duration-500">
+          <!-- Triangle -->
+          <polygon points="150,50 50,350 250,350" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+          
+          <!-- Base (b) -->
+          <line x1="50" y1="350" x2="250" y2="350" stroke="#ef4444" stroke-width="3" />
+          <text x="140" y="375" class="text-sm fill-red-600 font-bold" text-anchor="middle">b</text>
+          
+          <!-- Height (h) -->
+          <line x1="150" y1="50" x2="150" y2="350" stroke="#10b981" stroke-width="2" stroke-dasharray="5 5" />
+          <text x="165" y="200" class="text-sm fill-green-600 font-bold">h</text>
+          
+          <!-- Right angle symbol -->
+          <path d="M 150,320 L 170,320 L 170,340" fill="none" stroke="#10b981" stroke-width="1.5" />
+        </g>
+        
+        <!-- Step 1: Two Triangles -->
+        <g x-show="currentStep === 1" class="transition-all duration-500">
+          <!-- Original Triangle -->
+          <polygon points="150,50 50,350 250,350" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+          
+          <!-- Copied Triangle (slightly offset) -->
+          <polygon points="550,50 450,350 650,350" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+          
+          <!-- Labels -->
+          <text x="150" y="45" class="text-sm fill-stone-600" text-anchor="middle">原三角形</text>
+          <text x="550" y="45" class="text-sm fill-stone-600" text-anchor="middle">复制三角形</text>
+        </g>
+        
+        <!-- Step 2: Rotation and Joining -->
+        <g x-show="currentStep === 2" class="transition-all duration-700">
+          <!-- Original Triangle (fixed) -->
+          <polygon points="250,50 150,350 350,350" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+          
+          <!-- Rotated and moved triangle -->
+          <polygon points="350,50 250,350 450,350" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="2" transform="rotate(180, 350, 200)" />
+          
+          <!-- Join animation guide -->
+          <path d="M 350,200 L 350,200" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="5 5">
+            <animate attributeName="d" values="M 250,200 L 450,200; M 350,200 L 350,200" dur="1s" fill="freeze" />
+          </path>
+          
+          <text x="350" y="400" class="text-lg fill-stone-700" text-anchor="middle">旋转并拼接...</text>
+        </g>
+        
+        <!-- Step 3: Parallelogram -->
+        <g x-show="currentStep === 3" class="transition-all duration-500">
+          <!-- Parallelogram -->
+          <polygon points="250,50 150,350 450,350 350,50" fill="#8b5cf6" fill-opacity="0.2" stroke="#8b5cf6" stroke-width="2" />
+          
+          <!-- Base (b) -->
+          <line x1="150" y1="350" x2="450" y2="350" stroke="#ef4444" stroke-width="3" />
+          <text x="300" y="375" class="text-sm fill-red-600 font-bold" text-anchor="middle">b</text>
+          
+          <!-- Height (h) -->
+          <line x1="300" y1="50" x2="300" y2="350" stroke="#10b981" stroke-width="2" stroke-dasharray="5 5" />
+          <text x="315" y="200" class="text-sm fill-green-600 font-bold">h</text>
+          
+          <!-- Right angle symbol -->
+          <path d="M 300,320 L 320,320 L 320,340" fill="none" stroke="#10b981" stroke-width="1.5" />
+          
+          <text x="300" y="45" class="text-lg fill-stone-700" text-anchor="middle">平行四边形</text>
+        </g>
+        
+        <!-- Step 4: Highlight Triangle within Parallelogram -->
+        <g x-show="currentStep === 4" class="transition-all duration-500">
+          <!-- Parallelogram (background) -->
+          <polygon points="250,50 150,350 450,350 350,50" fill="#8b5cf6" fill-opacity="0.1" stroke="#8b5cf6" stroke-width="2" />
+          
+          <!-- Highlighted triangle (half of parallelogram) -->
+          <polygon points="250,50 150,350 450,350" fill="#f59e0b" fill-opacity="0.4" stroke="#f59e0b" stroke-width="3" class="triangle-highlight" />
+          
+          <!-- Division line -->
+          <line x1="250" y1="50" x2="450" y2="350" stroke="#ef4444" stroke-width="2" stroke-dasharray="8 4" />
+          
+          <!-- Labels -->
+          <text x="200" y="200" class="text-lg fill-orange-600" text-anchor="middle">½</text>
+          <text x="400" y="200" class="text-lg fill-orange-600" text-anchor="middle">½</text>
+          
+          <!-- Formula display -->
+          <foreignObject x="300" y="400" width="200" height="50">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="text-center">
+              <span class="katex-formula">A<sub>triangle</sub> = ½ × b × h</span>
+            </div>
+          </foreignObject>
+        </g>
+        
+        <!-- Step 5: Final Formula -->
+        <g x-show="currentStep === 5" class="transition-all duration-500">
+          <!-- Formula presentation -->
+          <foreignObject x="150" y="150" width="500" height="200">
+            <div xmlns="http://www.w3.org/1999/xhtml" class="flex flex-col items-center">
+              <h2 class="text-2xl font-bold text-stone-700 mb-4">三角形面积公式</h2>
+              <div class="katex-display text-3xl">
+                A = ½ × base × height
+              </div>
+              <div class="mt-4 text-lg text-stone-600">
+                或记作：底 × 高 ÷ 2
+              </div>
+            </div>
+          </foreignObject>
+          
+          <!-- Visual summary -->
+          <g transform="translate(100, 350)">
+            <polygon points="50,0 0,100 100,100" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" />
+            <line x1="0" y1="100" x2="100" y2="100" stroke="#ef4444" stroke-width="2" />
+            <text x="50" y="120" class="text-sm fill-red-600" text-anchor="middle">底 (b)</text>
+            <line x1="50" y1="0" x2="50" y2="100" stroke="#10b981" stroke-width="2" stroke-dasharray="5 5" />
+            <text x="65" y="50" class="text-sm fill-green-600">高 (h)</text>
+          </g>
+          
+          <g transform="translate(300, 350)">
+            <text x="50" y="50" class="text-xl font-bold fill-stone-700" text-anchor="middle">面积 =</text>
+          </g>
+          
+          <g transform="translate(400, 350)">
+            <polygon points="50,0 0,100 100,100" fill="#f59e0b" fill-opacity="0.3" stroke="#f59e0b" stroke-width="2" />
+            <text x="50" y="120" class="text-sm fill-orange-600" text-anchor="middle">½</text>
+          </g>
+          
+          <g transform="translate(500, 350)">
+            <text x="50" y="50" class="text-xl font-bold fill-stone-700" text-anchor="middle">×</text>
+          </g>
+          
+          <g transform="translate(600, 350)">
+            <text x="50" y="50" class="text-xl font-bold fill-red-600" text-anchor="middle">b</text>
+          </g>
+          
+          <g transform="translate(700, 350)">
+            <text x="50" y="50" class="text-xl font-bold fill-stone-700" text-anchor="middle">×</text>
+          </g>
+          
+          <g transform="translate(750, 350)">
+            <text x="50" y="50" class="text-xl font-bold fill-green-600" text-anchor="middle">h</text>
+          </g>
+        </g>
+      </svg>
+    </div>
+    
+    <!-- Right: Steps and Explanations -->
+    <div class="w-1/3 flex flex-col gap-4">
+      <!-- Step Counter -->
+      <div class="paper-texture p-3 text-center">
+        <span class="text-lg font-bold text-stone-700">步骤 <span x-text="currentStep + 1"></span> / <span x-text="steps.length"></span></span>
+      </div>
+      
+      <!-- Current Step Content -->
+      <div class="paper-texture p-4 flex-1 overflow-y-auto">
+        <div x-show="steps.length > 0">
+          <h3 class="text-xl font-bold mb-2 text-stone-800" x-text="steps[currentStep].title"></h3>
+          <p class="text-stone-700 mb-4" x-html="steps[currentStep].text"></p>
+          
+          <!-- Bubble Explanation -->
+          <div class="step-bubble p-3 rounded-lg mb-4">
+            <p class="text-stone-700 italic" x-text="steps[currentStep].bubble"></p>
+          </div>
+          
+          <!-- Math Formula -->
+          <div class="katex-formula p-2 bg-stone-50 rounded">
+            <span x-html="steps[currentStep].formula"></span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Navigation Buttons -->
+      <div class="flex justify-between mt-4">
+        <button 
+          @click="prevStep()" 
+          :disabled="currentStep === 0" 
+          class="px-4 py-2 bg-stone-300 text-stone-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-stone-400 transition-colors"
+        >
+          上一步
+        </button>
+        
+        <button 
+          @click="nextStep()" 
+          :disabled="currentStep === steps.length - 1" 
+          class="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-blue-600 transition-colors"
+        >
+          <span x-text="currentStep === steps.length - 1 ? '完成' : '下一步'"></span>
+        </button>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="p-4 border-t border-stone-300 text-center text-stone-500 text-sm">
+    <p>三角形面积公式推导动画 | 使用 Alpine.js + SVG + KaTeX + Tailwind CSS 创建</p>
+  </footer>
+
+  <script>
+    function mathApp() {
+      return {
+        currentStep: 0,
+        steps: [
+          {
+            title: "认识三角形",
+            text: "我们从一个三角形开始。三角形有三条边和三个角。设底边长为 <span class='font-bold text-red-600'>b</span>，高为 <span class='font-bold text-green-600'>h</span>。",
+            bubble: "看，这是一个漂亮的三角形！我们来学习它的面积怎么算。",
+            formula: "三角形有三条边和三个角，底边长为 $b$，高为 $h$。"
+          },
+          {
+            title: "复制三角形",
+            text: "为了推导面积，我们创建一个与原三角形完全相同的副本，这样可以拼接成新形状。",
+            bubble: "我来画一个和它一模一样的三角形，就像照镜子一样！",
+            formula: "创建一个与原三角形完全相同的副本，准备拼接。"
+          },
+          {
+            title: "拼接成平行四边形",
+            text: "将两个三角形旋转并拼接，形成一个平行四边形。这个平行四边形的底和高与原三角形相同。",
+            bubble: "把两个三角形拼在一起，哇，变成一个平行四边形啦！",
+            formula: "旋转并拼接两个三角形，形成平行四边形。"
+          },
+          {
+            title: "平行四边形的面积",
+            text: "平行四边形的面积公式是 <span class='katex-formula'>A<sub>parallelogram</sub> = b × h</span>，其中 <span class='font-bold text-red-600'>b</span> 是底边长，<span class='font-bold text-green-600'>h</span> 是高。",
+            bubble: "平行四边形的面积就是底乘高，很简单吧！",
+            formula: "平行四边形面积公式：$A_{parallelogram} = b \\times h$"
+          },
+          {
+            title: "三角形面积推导",
+            text: "因为平行四边形由两个相同的三角形组成，所以一个三角形的面积是平行四边形面积的一半。公式为 <span class='katex-formula'>A<sub>triangle</sub> = ½ × b × h</span>。",
+            bubble: "平行四边形有两个三角形，所以一个三角形的面积就是它的一半哦！",
+            formula: "三角形面积公式：$A_{triangle} = \\frac{1}{2} \\times b \\times h$"
+          },
+          {
+            title: "总结公式",
+            text: "最终，三角形面积公式是 <span class='katex-formula'>A = ½ × base × height</span>，可以记为底乘高除以2。",
+            bubble: "记住啦，三角形面积是底乘高再除以2！多练习几次就熟练了。",
+            formula: "最终公式：$A = \\frac{1}{2} \\times base \\times height$"
+          }
+        ],
+        
+        init() {
+          // Initialize KaTeX rendering for formulas
+          this.$nextTick(() => {
+            this.renderMath();
+          });
+        },
+        
+        nextStep() {
+          if (this.currentStep < this.steps.length - 1) {
+            this.currentStep++;
+            this.$nextTick(() => {
+              this.renderMath();
+            });
+          }
+        },
+        
+        prevStep() {
+          if (this.currentStep > 0) {
+            this.currentStep--;
+            this.$nextTick(() => {
+              this.renderMath();
+            });
+          }
+        },
+        
+        renderMath() {
+          // Render all math formulas in the document
+          document.querySelectorAll('.katex-formula').forEach(element => {
+            try {
+              katex.render(element.textContent, element, {
+                throwOnError: false,
+                displayMode: element.classList.contains('katex-display')
+              });
+            } catch (e) {
+              console.error('KaTeX rendering error:', e);
+            }
+          });
+        }
+      };
+    }
+  </script>
+</body>
+</html>

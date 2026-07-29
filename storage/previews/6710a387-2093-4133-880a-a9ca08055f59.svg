@@ -1,0 +1,23 @@
+<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#F7F5F0"/>
+  <path d="M0,280 L50,260 L120,270 L200,250 L300,265 L400,280 L400,300 L0,300 Z" fill="#3E5C76" opacity="0.3"/>
+  <path d="M0,285 L80,270 L180,275 L280,260 L400,285 L400,300 L0,300 Z" fill="#3E5C76" opacity="0.5"/>
+  <g transform="translate(30,40)">
+    <path d="M0,60 Q30,10 60,60 Q90,110 120,60" stroke="#3E5C76" fill="none" stroke-width="2"/>
+    <circle cx="60" cy="40" r="3" fill="#B83B43"/>
+    <circle cx="30" cy="25" r="2" fill="#B83B43" opacity="0.7"/>
+    <circle cx="90" cy="25" r="2" fill="#B83B43" opacity="0.7"/>
+    <line x1="20" y1="30" x2="40" y2="15" stroke="#3E5C76" stroke-width="1"/>
+  </g>
+  <g transform="translate(200,80)">
+    <text x="0" y="0" font-family="serif" font-size="36" fill="#B83B43" font-weight="bold">0/0</text>
+    <text x="0" y="40" font-family="serif" font-size="14" fill="#3E5C76">极限谜题</text>
+  </g>
+  <path d="M320,50 Q340,40 360,55 Q380,70 370,90 Q360,75 340,80 Q320,85 310,65 Z" fill="none" stroke="#3E5C76" stroke-width="1.5"/>
+  <circle cx="325" cy="55" r="2.5" fill="#B83B43"/>
+  <circle cx="350" cy="45" r="2.5" fill="#B83B43"/>
+  <circle cx="365" cy="65" r="2.5" fill="#B83B43"/>
+  <circle cx="335" cy="75" r="2.5" fill="#B83B43"/>
+  <circle cx="355" cy="85" r="2.5" fill="#B83B43"/>
+  <text x="140" y="295" font-family="serif" font-size="16" fill="#3E5C76">揭秘洛必达法则</text>
+</svg>

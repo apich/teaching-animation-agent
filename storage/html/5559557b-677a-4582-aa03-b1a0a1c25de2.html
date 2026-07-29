@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>逻辑回归分析：从数据到预测</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>逻辑回归分析：从数据到预测</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 坐标轴 -->
+      <line x1="100" y1="350" x2="500" y2="350" stroke="black" stroke-width="2"/>
+      <line x1="100" y1="350" x2="100" y2="50" stroke="black" stroke-width="2"/>
+      <!-- 轴标签 -->
+      <text x="300" y="380" text-anchor="middle" font-size="14">年龄 (x1)</text>
+      <text x="50" y="200" text-anchor="middle" font-size="14" transform="rotate(-90,50,200)">收入 (x2)</text>
+      <!-- 数据点：年龄1-10，收入850-1500，颜色区分y值（蓝色y=0，红色y=1） -->
+      <circle cx="100" cy="350" r="5" fill="blue" title="年龄:1, 收入:850, y=0"/>
+      <circle cx="144.5" cy="188.5" r="5" fill="blue" title="年龄:2, 收入:1200, y=0"/>
+      <circle cx="188.9" cy="350" r="5" fill="red" title="年龄:3, 收入:850, y=1"/>
+      <circle cx="233.3" cy="303.9" r="5" fill="red" title="年龄:4, 收入:950, y=1"/>
+      <circle cx="277.8" cy="188.5" r="5" fill="red" title="年龄:5, 收入:1200, y=1"/>
+      <circle cx="322.2" cy="350" r="5" fill="blue" title="年龄:6, 收入:850, y=0"/>
+      <circle cx="366.6" cy="50" r="5" fill="red" title="年龄:7, 收入:1500, y=1"/>
+      <circle cx="411.1" cy="280.8" r="5" fill="red" title="年龄:8, 收入:1000, y=1"/>
+      <circle cx="455.5" cy="303.9" r="5" fill="red" title="年龄:9, 收入:950, y=1"/>
+      <circle cx="500" cy="188.5" r="5" fill="blue" title="年龄:10, 收入:1200, y=0"/>
+      <!-- 标注点编号 -->
+      <text x="100" y="340" font-size="10" text-anchor="middle">1</text>
+      <text x="144.5" y="178.5" font-size="10" text-anchor="middle">2</text>
+      <text x="188.9" y="340" font-size="10" text-anchor="middle">3</text>
+      <text x="233.3" y="293.9" font-size="10" text-anchor="middle">4</text>
+      <text x="277.8" y="178.5" font-size="10" text-anchor="middle">5</text>
+      <text x="322.2" y="340" font-size="10" text-anchor="middle">6</text>
+      <text x="366.6" y="40" font-size="10" text-anchor="middle">7</text>
+      <text x="411.1" y="270.8" font-size="10" text-anchor="middle">8</text>
+      <text x="455.5" y="293.9" font-size="10" text-anchor="middle">9</text>
+      <text x="500" y="178.5" font-size="10" text-anchor="middle">10</text>
+      <!-- 图例 -->
+      <circle cx="520" cy="60" r="5" fill="blue"/>
+      <text x="530" y="64" font-size="12">y=0 (未购买)</text>
+      <circle cx="520" cy="80" r="5" fill="red"/>
+      <text x="530" y="84" font-size="12">y=1 (购买)</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>数据探索</h3>
+    <div class="step-text">我们有一组数据，包含变量如年龄（<span x-html="katex.renderToString('x_1', {throwOnError:false})">）、收入（<span x-html="katex.renderToString('x_2', {throwOnError:false})">）和性别（<span x-html="katex.renderToString('x_3', {throwOnError:false})">），以及分类结果<span x-html="katex.renderToString('y', {throwOnError:false})">（0表示未购买，1表示购买）。数据共28条记录，<span x-html="katex.renderToString('y=1', {throwOnError:false})">有13条，<span x-html="katex.renderToString('y=0', {throwOnError:false})">有15条。</div>
+    <div class="bubble">看看这些数据点，年龄、收入和性别如何影响一个人是否购买呢？</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 输入变量框 -->
+      <rect x="50" y="100" width="80" height="30" fill="#f0f0f0" stroke="black"/>
+      <text x="90" y="120" text-anchor="middle">年龄</text>
+      <rect x="50" y="140" width="80" height="30" fill="#f0f0f0" stroke="black"/>
+      <text x="90" y="160" text-anchor="middle">收入</text>
+      <rect x="50" y="180" width="80" height="30" fill="#f0f0f0" stroke="black"/>
+      <text x="90" y="200" text-anchor="middle">性别</text>
+      <!-- 方程框 -->
+      <rect x="200" y="120" width="200" height="100" fill="#e0e0ff" stroke="black"/>
+      <text x="300" y="150" text-anchor="middle">logit(P) =</text>
+      <text x="300" y="170" text-anchor="middle">-3.4348 + 0.0913*年龄</text>
+      <text x="300" y="190" text-anchor="middle">+ 0.0011*收入 -2.4680*性别</text>
+      <!-- 输出概率框 -->
+      <rect x="450" y="130" width="100" height="80" fill="#f0ffe0" stroke="black"/>
+      <text x="500" y="170" text-anchor="middle">概率 P</text>
+      <!-- 箭头 -->
+      <line x1="130" y1="115" x2="200" y2="150" stroke="black" marker-end="url(#arrow)"/>
+      <line x1="130" y1="155" x2="200" y2="170" stroke="black" marker-end="url(#arrow)"/>
+      <line x1="130" y1="195" x2="200" y2="190" stroke="black" marker-end="url(#arrow)"/>
+      <line x1="400" y1="170" x2="450" y2="170" stroke="black" marker-end="url(#arrow)"/>
+      <!-- 箭头标记定义 -->
+      <defs>
+        <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+          <path d="M0,0 L0,6 L9,3 z" fill="black"/>
+        </marker>
+      </defs>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>逻辑回归方程</h3>
+    <div class="step-text">
+      逻辑回归使用线性方程预测概率：<span x-html="katex.renderToString('\\logit(P) = \\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\beta_3 x_3', {throwOnError:false})"></span>，其中P是购买概率，系数β0 = -3.4348（截距），β1 = 0.0913（年龄系数），β2 = 0.0011（收入系数），β3 = -2.4680（性别系数）。
+    </div>
+    <div class="bubble">这个方程像一条规则：输入年龄、收入和性别，就能算出购买概率，系数表示每个变量的影响大小。</div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 数轴 -->
+      <line x1="50" y1="200" x2="550" y2="200" stroke="#666" stroke-width="2"/>
+      <polygon points="550,200 540,195 540,205" fill="#666"/>
+      
+      <!-- 刻度标记 -->
+      <line x1="50" y1="195" x2="50" y2="205" stroke="#666" stroke-width="2"/>
+      <text x="50" y="230" text-anchor="middle" fill="#333" font-size="16">0</text>
+      
+      <line x1="300" y1="180" x2="300" y2="220" stroke="#333" stroke-width="2" stroke-dasharray="5,5"/>
+      <text x="300" y="170" text-anchor="middle" fill="#333" font-size="16">0.5</text>
+      
+      <line x1="550" y1="195" x2="550" y2="205" stroke="#666" stroke-width="2"/>
+      <text x="550" y="230" text-anchor="middle" fill="#333" font-size="16">1</text>
+      
+      <!-- 区域标注 -->
+      <rect x="50" y="240" width="250" height="60" fill="#e8f4fd" stroke="#3498db" stroke-width="1" rx="5"/>
+      <text x="175" y="275" text-anchor="middle" fill="#2c3e50" font-size="14">预测0（未购买）</text>
+      
+      <rect x="300" y="240" width="250" height="60" fill="#fdebd0" stroke="#f39c12" stroke-width="1" rx="5"/>
+      <text x="425" y="275" text-anchor="middle" fill="#2c3e50" font-size="14">预测1（购买）</text>
+      
+      <!-- 示例点 -->
+      <circle cx="380" cy="200" r="8" fill="#e74c3c"/>
+      <text x="380" y="180" text-anchor="middle" fill="#c0392b" font-size="14" font-weight="bold">P=0.65</text>
+      <text x="380" y="160" text-anchor="middle" fill="#27ae60" font-size="12">→ 预测1</text>
+      
+      <!-- 标题 -->
+      <text x="300" y="50" text-anchor="middle" fill="#2c3e50" font-size="20" font-weight="bold">概率阈值分类</text>
+      <text x="300" y="80" text-anchor="middle" fill="#7f8c8d" font-size="14">logistic回归的决策过程</text>
+      
+      <!-- 阈值说明 -->
+      <text x="300" y="130" text-anchor="middle" fill="#9b59b6" font-size="14">阈值 = 0.5</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>概率到分类</h3>
+    <div class="step-text">
+      <p>逻辑回归将概率 <span x-html="katex.renderToString('P', {throwOnError:false})"> 转换为分类：</p>
+      <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 3px solid #3498db;">
+        <p style="margin: 0;">如果 <span x-html="katex.renderToString('P > 0.5', {throwOnError:false})">，预测为 <strong>1（购买）</strong></p>
+        <p style="margin: 5px 0 0 0;">否则预测为 <strong>0（未购买）</strong></p>
+      </div>
+      <p>例如，根据方程计算，当 <span x-html="katex.renderToString('P = 0.65 > 0.5', {throwOnError:false})"> 时，模型认为该记录更可能购买。</p>
+    </div>
+    <div class="bubble">如果概率超过一半，就猜购买；否则猜不买。就像抛硬币，超过0.5就选正面。</div>
+  </div>
+</div>
+<div x-show="currentStep === 3" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <text x="300" y="40" text-anchor="middle" font-size="16">混淆矩阵</text>
+      <text x="275" y="90" text-anchor="middle">预测 0</text>
+      <text x="425" y="90" text-anchor="middle">预测 1</text>
+      <text x="180" y="150" text-anchor="middle">实际 0</text>
+      <text x="180" y="250" text-anchor="middle">实际 1</text>
+      <rect x="200" y="100" width="150" height="100" fill="#f0f0f0" stroke="black"/>
+      <rect x="350" y="100" width="150" height="100" fill="#f0f0f0" stroke="black"/>
+      <rect x="200" y="200" width="150" height="100" fill="#f0f0f0" stroke="black"/>
+      <rect x="350" y="200" width="150" height="100" fill="#f0f0f0" stroke="black"/>
+      <text x="275" y="155" text-anchor="middle" font-size="20">13</text>
+      <text x="425" y="155" text-anchor="middle" font-size="20">2</text>
+      <text x="275" y="255" text-anchor="middle" font-size="20">3</text>
+      <text x="425" y="255" text-anchor="middle" font-size="20">10</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>模型评估</h3>
+    <div class="step-text">模型准确率为 <span x-html="katex.renderToString('\\text{Accuracy} = \\frac{23}{28} \\approx 0.8214', {throwOnError:false})"></span>（82.14%的预测正确），AUC为 0.8667（衡量模型区分能力）。混淆矩阵显示：预测正确的有23条（13真0和10真1），错误的有5条（2假1和3假0）。</div>
+    <div class="bubble">模型整体挺准的，但还有进步空间：有些未购买被误判为购买，有些购买被漏掉了。</div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "数据探索", "text": "我们有一组数据，包含变量如年龄（$x_1$）、收入（$x_2$）和性别（$x_3$），以及分类结果$y$（0表示未购买，1表示购买）。数据共28条记录，$y=1$有13条，$y=0$有15条。", "bubble": "看看这些数据点，年龄、收入和性别如何影响一个人是否购买呢？"}, {"title": "逻辑回归方程", "text": "逻辑回归使用线性方程预测概率：$\\logit(P) = \\beta_0 + \\beta_1 x_1 + \\beta_2 x_2 + \\beta_3 x_3$，其中$P$是购买概率，系数$\\beta_0 = -3.4348$（截距），$\\beta_1 = 0.0913$（年龄系数），$\\beta_2 = 0.0011$（收入系数），$\\beta_3 = -2.4680$（性别系数）。", "bubble": "这个方程像一条规则：输入年龄、收入和性别，就能算出购买概率，系数表示每个变量的影响大小。"}, {"title": "概率到分类", "text": "逻辑回归将概率$P$转换为分类：如果$P > 0.5$，预测为1（购买）；否则预测为0（未购买）。例如，根据方程计算，当$P > 0.5$时，模型认为该记录更可能购买。", "bubble": "如果概率超过一半，就猜购买；否则猜不买。就像抛硬币，超过0.5就选正面。"}, {"title": "模型评估", "text": "模型准确率为0.8214（82.14%的预测正确），AUC为0.8667（衡量模型区分能力）。混淆矩阵显示：预测正确的有23条（13真0和10真1），错误的有5条（2假1和3假0）。", "bubble": "模型整体挺准的，但还有进步空间：有些未购买被误判为购买，有些购买被漏掉了。"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

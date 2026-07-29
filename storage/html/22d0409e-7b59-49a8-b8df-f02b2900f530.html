@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3×4 乘法动画</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>3×4 乘法动画</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 3x4蓝色圆点 -->
+      <defs>
+        <style>
+          .dot { fill: #3B82F6; stroke: #1D4ED8; stroke-width: 1.5; }
+          .dash { fill: none; stroke: #EF4444; stroke-width: 2; stroke-dasharray: 6,4; }
+          .dash2 { fill: none; stroke: #10B981; stroke-width: 2; stroke-dasharray: 6,4; }
+          .arrow { fill: none; stroke: #374151; stroke-width: 2; }
+          .label { font-size: 14px; font-family: Arial, sans-serif; fill: #374151; }
+          .title { font-size: 16px; font-weight: bold; fill: #1F2937; }
+        </style>
+      </defs>
+      
+      <!-- 圆点矩阵：3行，每行4个 -->
+      <g>
+        <circle class="dot" cx="150" cy="100" r="10"/>
+        <circle class="dot" cx="250" cy="100" r="10"/>
+        <circle class="dot" cx="350" cy="100" r="10"/>
+        <circle class="dot" cx="450" cy="100" r="10"/>
+        <circle class="dot" cx="150" cy="200" r="10"/>
+        <circle class="dot" cx="250" cy="200" r="10"/>
+        <circle class="dot" cx="350" cy="200" r="10"/>
+        <circle class="dot" cx="450" cy="200" r="10"/>
+        <circle class="dot" cx="150" cy="300" r="10"/>
+        <circle class="dot" cx="250" cy="300" r="10"/>
+        <circle class="dot" cx="350" cy="300" r="10"/>
+        <circle class="dot" cx="450" cy="300" r="10"/>
+      </g>
+      
+      <!-- 虚线框：3组4个（红色虚线，框出每一行） -->
+      <g>
+        <rect class="dash" x="130" y="80" width="340" height="40" rx="4"/>
+        <rect class="dash" x="130" y="180" width="340" height="40" rx="4"/>
+        <rect class="dash" x="130" y="280" width="340" height="40" rx="4"/>
+        <!-- 箭头与文字：左侧 "4个" -->
+        <path class="arrow" d="M110,100 L127,100" marker-end="url(#arrowheadRed)"/>
+        <text class="label" x="95" y="104" text-anchor="end">4个</text>
+        <text class="title" x="80" y="200" text-anchor="middle" transform="rotate(-90,80,200)">×3组</text>
+      </g>
+      
+      <!-- 虚线框：4组3个（绿色虚线，框出每一列） -->
+      <g>
+        <rect class="dash2" x="130" y="80" width="40" height="240" rx="4"/>
+        <rect class="dash2" x="230" y="80" width="40" height="240" rx="4"/>
+        <rect class="dash2" x="330" y="80" width="40" height="240" rx="4"/>
+        <rect class="dash2" x="430" y="80" width="40" height="240" rx="4"/>
+        <!-- 箭头与文字：上方 "3个" -->
+        <path class="arrow" d="M150,70 L150,77" marker-end="url(#arrowheadGreen)"/>
+        <path class="arrow" d="M250,70 L250,77" marker-end="url(#arrowheadGreen)"/>
+        <path class="arrow" d="M350,70 L350,77" marker-end="url(#arrowheadGreen)"/>
+        <path class="arrow" d="M450,70 L450,77" marker-end="url(#arrowheadGreen)"/>
+        <text class="label" x="150" y="65" text-anchor="middle">3个</text>
+        <text class="label" x="250" y="65" text-anchor="middle">3个</text>
+        <text class="label" x="350" y="65" text-anchor="middle">3个</text>
+        <text class="label" x="450" y="65" text-anchor="middle">3个</text>
+        <text class="title" x="300" y="55" text-anchor="middle">×4组</text>
+      </g>
+      
+      <!-- 箭头定义（两个颜色） -->
+      <defs>
+        <marker id="arrowheadRed" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#EF4444"/>
+        </marker>
+        <marker id="arrowheadGreen" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+          <polygon points="0 0, 8 3, 0 6" fill="#10B981"/>
+        </marker>
+      </defs>
+      
+      <!-- 虚线框图例说明 -->
+      <text class="label" x="30" y="370" fill="#EF4444">红色：3组，每组4个</text>
+      <text class="label" x="220" y="370" fill="#10B981">绿色：4组，每组3个</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>理解乘法含义</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('3 \\times 4', {throwOnError:false})"></span> 表示 3 个 4 相加，或 4 个 3 相加。
+    </div>
+    <div class="bubble">3乘以4，就是把3个4加起来，或者把4个3加起来。</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+      <!-- 第一行圆点 -->
+      <g>
+        <circle cx="80" cy="80" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="0s" fill="freeze"/>
+          <animate attributeName="cx" values="80;440" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="cy" values="80;200" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="1s" fill="freeze"/>
+        </circle>
+        <circle cx="150" cy="80" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="0s" fill="freeze"/>
+          <animate attributeName="cx" values="150;440" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="cy" values="80;200" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="1s" fill="freeze"/>
+        </circle>
+        <circle cx="220" cy="80" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="0s" fill="freeze"/>
+          <animate attributeName="cx" values="220;440" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="cy" values="80;200" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="1s" fill="freeze"/>
+        </circle>
+        <circle cx="290" cy="80" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="0s" fill="freeze"/>
+          <animate attributeName="cx" values="290;440" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="cy" values="80;200" dur="0.6s" begin="1s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="1s" fill="freeze"/>
+        </circle>
+        <text x="310" y="85" font-size="20" fill="#F5A623" opacity="0">
+          4
+          <animate attributeName="opacity" values="0;1" dur="0.3s" begin="0.6s" fill="freeze"/>
+        </text>
+      </g>
+      <!-- 第二行圆点 -->
+      <g>
+        <circle cx="80" cy="160" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="2s" fill="freeze"/>
+          <animate attributeName="cx" values="80;440" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="cy" values="160;200" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="3s" fill="freeze"/>
+        </circle>
+        <circle cx="150" cy="160" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="2s" fill="freeze"/>
+          <animate attributeName="cx" values="150;440" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="cy" values="160;200" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="3s" fill="freeze"/>
+        </circle>
+        <circle cx="220" cy="160" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="2s" fill="freeze"/>
+          <animate attributeName="cx" values="220;440" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="cy" values="160;200" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="3s" fill="freeze"/>
+        </circle>
+        <circle cx="290" cy="160" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="2s" fill="freeze"/>
+          <animate attributeName="cx" values="290;440" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="cy" values="160;200" dur="0.6s" begin="3s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="3s" fill="freeze"/>
+        </circle>
+        <text x="310" y="165" font-size="20" fill="#F5A623" opacity="0">
+          +4
+          <animate attributeName="opacity" values="0;1" dur="0.3s" begin="2.6s" fill="freeze"/>
+        </text>
+      </g>
+      <!-- 第三行圆点 -->
+      <g>
+        <circle cx="80" cy="240" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="4s" fill="freeze"/>
+          <animate attributeName="cx" values="80;440" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="cy" values="240;200" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="5s" fill="freeze"/>
+        </circle>
+        <circle cx="150" cy="240" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="4s" fill="freeze"/>
+          <animate attributeName="cx" values="150;440" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="cy" values="240;200" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="5s" fill="freeze"/>
+        </circle>
+        <circle cx="220" cy="240" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="4s" fill="freeze"/>
+          <animate attributeName="cx" values="220;440" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="cy" values="240;200" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="5s" fill="freeze"/>
+        </circle>
+        <circle cx="290" cy="240" r="15" fill="#4A90D9">
+          <animate attributeName="fill" values="#4A90D9;#F5A623" dur="0.8s" begin="4s" fill="freeze"/>
+          <animate attributeName="cx" values="290;440" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="cy" values="240;200" dur="0.6s" begin="5s" fill="freeze"/>
+          <animate attributeName="opacity" values="1;0" dur="0.6s" begin="5s" fill="freeze"/>
+        </circle>
+        <text x="310" y="245" font-size="20" fill="#F5A623" opacity="0">
+          +4
+          <animate attributeName="opacity" values="0;1" dur="0.3s" begin="4.6s" fill="freeze"/>
+        </text>
+      </g>
+      <!-- 右侧累加结果 -->
+      <!-- 4 -->
+      <text x="430" y="180" font-size="36" fill="#4A90D9" opacity="0" font-weight="bold" text-anchor="middle">
+        4
+        <animate attributeName="opacity" values="0;1" dur="0.3s" begin="1.2s" fill="freeze"/>
+        <animate attributeName="opacity" values="1;0" dur="0.3s" begin="3.2s" fill="freeze"/>
+      </text>
+      <!-- 8 -->
+      <text x="430" y="200" font-size="36" fill="#4A90D9" opacity="0" font-weight="bold" text-anchor="middle">
+        8
+        <animate attributeName="opacity" values="0;1" dur="0.3s" begin="3.2s" fill="freeze"/>
+        <animate attributeName="opacity" values="1;0" dur="0.3s" begin="5.2s" fill="freeze"/>
+      </text>
+      <!-- 12 大字体 -->
+      <text x="430" y="240" font-size="48" fill="#D0021B" opacity="0" font-weight="bold" text-anchor="middle">
+        12
+        <animate attributeName="opacity" values="0;1" dur="0.5s" begin="6s" fill="freeze"/>
+      </text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>加法计算</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('4 + 4 + 4 = 12', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">我们来加一下：4加4等于8，再加4等于12。</div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 背景网格：3行4列共12个圆点 -->
+      <g fill="#d0d0d0">
+        <circle cx="120" cy="120" r="10"/>
+        <circle cx="200" cy="120" r="10"/>
+        <circle cx="280" cy="120" r="10"/>
+        <circle cx="360" cy="120" r="10"/>
+        <circle cx="120" cy="200" r="10"/>
+        <circle cx="200" cy="200" r="10"/>
+        <circle cx="280" cy="200" r="10"/>
+        <circle cx="360" cy="200" r="10"/>
+        <circle cx="120" cy="280" r="10"/>
+        <circle cx="200" cy="280" r="10"/>
+        <circle cx="280" cy="280" r="10"/>
+        <circle cx="360" cy="280" r="10"/>
+      </g>
+      <!-- 中心等式：3 × 4 = 12，其中12突出 -->
+      <text x="300" y="220" text-anchor="middle" font-size="36" fill="#333">
+        <tspan>3 × 4 = </tspan>
+        <tspan fill="#e63946" font-size="52" font-weight="bold">12</tspan>
+      </text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>得出结果</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('3 \\times 4 = 12', {throwOnError: false})"></span>
+    </div>
+    <div class="bubble">所以3乘以4等于12。</div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "理解乘法含义", "text": "$3 \\times 4$ 表示 3 个 4 相加，或 4 个 3 相加。", "bubble": "3乘以4，就是把3个4加起来，或者把4个3加起来。"}, {"title": "加法计算", "text": "$4 + 4 + 4 = 12$", "bubble": "我们来加一下：4加4等于8，再加4等于12。"}, {"title": "得出结果", "text": "$3 \\times 4 = 12$", "bubble": "所以3乘以4等于12。"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>勾股定理</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>勾股定理</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 直角边（蓝色） -->
+      <line x1="100" y1="300" x2="400" y2="300" stroke="blue" stroke-width="4"/>
+      <line x1="100" y1="300" x2="100" y2="100" stroke="blue" stroke-width="4"/>
+      <!-- 斜边（红色） -->
+      <line x1="400" y1="300" x2="100" y2="100" stroke="red" stroke-width="4"/>
+      <!-- 直角符号（小正方形） -->
+      <polygon points="100,300 130,300 130,270 100,270" fill="none" stroke="black" stroke-width="2"/>
+      <!-- 标签 -->
+      <text x="250" y="340" text-anchor="middle" fill="blue" font-size="28" font-weight="bold">b</text>
+      <text x="70" y="210" text-anchor="middle" fill="blue" font-size="28" font-weight="bold">a</text>
+      <text x="220" y="190" text-anchor="middle" fill="red" font-size="28" font-weight="bold">c</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>认识直角三角形</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('直角三角形有一个角是$90^\\circ$，两条直角边分别为$a$和$b$，斜边为$c$。', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">看，这个三角形有一个直角，我们用小方块标记它。两条短边叫直角边，最长的边叫斜边。</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div style="display: flex; gap: 2rem; align-items: flex-start; padding: 1rem;">
+    <div class="step-svg" style="flex: 0 0 auto;">
+      <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg" style="max-width: 580px; height: auto;">
+        <style>
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          .sq-a { animation: fadeIn 0.6s ease-out forwards; }
+          .sq-b { animation: fadeIn 0.6s ease-out 0.3s forwards; opacity: 0; }
+          .sq-c { animation: fadeIn 0.6s ease-out 0.6s forwards; opacity: 0; }
+          .tri { animation: fadeIn 0.4s ease-out 0.1s both; }
+          .label { animation: fadeIn 0.4s ease-out 0.9s forwards; opacity: 0; }
+        </style>
+
+        <!-- 边a的正方形（蓝色） -->
+        <g class="sq-a">
+          <rect x="300" y="300" width="150" height="150" fill="#3b82f6" fill-opacity="0.2" stroke="#3b82f6" stroke-width="2" stroke-dasharray="4" rx="4"/>
+          <text x="375" y="375" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold" fill="#1e3a8a">a² = 22500</text>
+        </g>
+
+        <!-- 边b的正方形（绿色） -->
+        <g class="sq-b">
+          <rect x="150" y="150" width="150" height="150" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="2" stroke-dasharray="4" rx="4"/>
+          <text x="225" y="225" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold" fill="#065f46">b² = 22500</text>
+        </g>
+
+        <!-- 边c的正方形（红色） -->
+        <g class="sq-c">
+          <polygon points="450,300 300,150 450,0 600,150" fill="#ef4444" fill-opacity="0.2" stroke="#ef4444" stroke-width="2" stroke-dasharray="4"/>
+          <text x="450" y="150" text-anchor="middle" dominant-baseline="middle" font-size="20" font-weight="bold" fill="#991b1b">c² = 45000</text>
+        </g>
+
+        <!-- 三角形 -->
+        <g class="tri">
+          <polygon points="300,300 450,300 300,150" fill="none" stroke="#1f2937" stroke-width="3" stroke-linejoin="round"/>
+        </g>
+
+        <!-- 边长标签 -->
+        <g class="label" font-size="16" fill="#4b5563" font-weight="bold">
+          <text x="375" y="325" text-anchor="middle">a = 150</text>
+          <text x="275" y="225" text-anchor="middle">b = 150</text>
+          <text x="375" y="215" text-anchor="middle" transform="rotate(-45 375 215)">c ≈ 212</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="step-info" style="flex: 1; min-width: 240px;">
+      <h3 style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; color: #1f2937;">勾股定理公式</h3>
+      <div class="step-text" style="margin-bottom: 1rem;">
+        <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 0.5rem; color: #1f2937;">
+          <span x-html="katex.renderToString('a^2 + b^2 = c^2', {throwOnError: false})"></span>
+        </p>
+        <p style="margin: 0; color: #4b5563;">即两直角边的平方和等于斜边的平方。</p>
+      </div>
+      <div class="bubble" style="background-color: #e0f2fe; border-radius: 1rem 1rem 1rem 0; padding: 1rem 1.5rem; border: 1px solid #bae6fd; max-width: 90%;">
+        <p style="margin: 0; color: #1e3a8a;">💡 意思是：把两条直角边的长度分别乘自己，再相加，结果刚好等于斜边自己乘自己。</p>
+      </div>
+    </div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 3×3 正方形 (直角边 a=3 下方) -->
+      <polygon points="200,290 305,290 305,395 200,395" fill="rgba(66,133,244,0.25)" stroke="#4285f4" stroke-width="2"/>
+      <!-- 4×4 正方形 (直角边 b=4 左侧) -->
+      <polygon points="200,290 200,150 60,150 60,290" fill="rgba(52,168,83,0.25)" stroke="#34a853" stroke-width="2"/>
+      <!-- 5×5 正方形 (斜边 c=5 外侧) -->
+      <polygon points="305,290 200,150 340,45 445,185" fill="rgba(251,188,4,0.25)" stroke="#fbbc04" stroke-width="2"/>
+
+      <!-- 3-4-5 三角形 -->
+      <polygon points="200,290 305,290 200,150" fill="rgba(234,67,53,0.10)" stroke="#ea4335" stroke-width="2.5"/>
+
+      <!-- 边长标注 -->
+      <text x="248" y="282" font-size="18" font-weight="bold" fill="#4285f4" text-anchor="middle">3</text>
+      <text x="190" y="224" font-size="18" font-weight="bold" fill="#34a853" text-anchor="end" dx="-6">4</text>
+      <!-- 斜边5的标注在斜边中点法线方向偏移 -->
+      <text x="270" y="205" font-size="18" font-weight="bold" fill="#fbbc04" text-anchor="middle" transform="rotate(-53,270,205)">5</text>
+
+      <!-- 面积值显示在正方形内部 -->
+      <text x="252.5" y="352" font-size="26" font-weight="bold" fill="#4285f4" text-anchor="middle">3²=9</text>
+      <text x="130" y="228" font-size="26" font-weight="bold" fill="#34a853" text-anchor="middle">4²=16</text>
+      <text x="322.5" y="175" font-size="26" font-weight="bold" fill="#fbbc04" text-anchor="middle">5²=25</text>
+
+      <!-- 箭头：从 B 点 (305,290) 指向 5×5 正方形中心 (322.5,167.5)，表示 9+16=25 -->
+      <defs>
+        <marker id="arrow2" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto">
+          <path d="M0,0 L10,5 L0,10 L2,5 Z" fill="#ea4335"/>
+        </marker>
+      </defs>
+      <line x1="307" y1="285" x2="322" y2="173" stroke="#ea4335" stroke-width="2.5" stroke-dasharray="6,4" marker-end="url(#arrow2)"/>
+
+      <!-- 等式标注在箭头旁 -->
+      <text x="334" y="235" font-size="19" font-weight="bold" fill="#ea4335" text-anchor="start">
+        <tspan fill="#4285f4">9</tspan>
+        <tspan fill="#000"> + </tspan>
+        <tspan fill="#34a853">16</tspan>
+        <tspan fill="#000"> = </tspan>
+        <tspan fill="#fbbc04">25</tspan>
+      </text>
+
+      <!-- 额外连线提示：从C点引出短虚线指向等式 -->
+      <line x1="200" y1="155" x2="290" y2="200" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5"/>
+      <line x1="305" y1="285" x2="330" y2="220" stroke="#999" stroke-width="1.2" stroke-dasharray="4,3" opacity="0.5"/>
+
+      <!-- 直角符号 -->
+      <polyline points="200,280 210,280 210,290" fill="none" stroke="#555" stroke-width="1.5"/>
+    </svg>
+  </div>
+
+  <div class="step-info">
+    <h3>验证 3-4-5 三角形</h3>
+    <div class="step-text">
+      取 <span x-html="katex.renderToString('a=3', {throwOnError:false})"></span>，
+      <span x-html="katex.renderToString('b=4', {throwOnError:false})"></span>，则
+      <span x-html="katex.renderToString('3^2 + 4^2 = 9 + 16 = 25 = 5^2', {throwOnError:false})"></span>，所以
+      <span x-html="katex.renderToString('c=5', {throwOnError:false})"></span>。
+    </div>
+    <div class="bubble">
+      💡 比如我们让两条直角边分别是 3 和 4，那么斜边就是 5，
+      因为 3×3 + 4×4 = 9 + 16 = 25，而 5×5 = 25，正好相等！
+      你可以试试其他数字哦。
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "认识直角三角形", "text": "直角三角形有一个角是$90^\\circ$，两条直角边分别为$a$和$b$，斜边为$c$。", "bubble": "看，这个三角形有一个直角，我们用小方块标记它。两条短边叫直角边，最长的边叫斜边。"}, {"title": "勾股定理公式", "text": "勾股定理：$a^2 + b^2 = c^2$。即两直角边的平方和等于斜边的平方。", "bubble": "意思是：把两条直角边的长度分别乘自己，再相加，结果刚好等于斜边自己乘自己。"}, {"title": "验证3-4-5三角形", "text": "取$a=3$, $b=4$, 则$3^2+4^2=9+16=25=5^2$，所以$c=5$。", "bubble": "比如我们让两条直角边分别是3和4，那么斜边就是5，因为3×3+4×4=9+16=25，而5×5=25，正好相等！你可以试试其他数字哦。"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

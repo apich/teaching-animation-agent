@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>探索正弦定理：三角形边角的奥秘</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>探索正弦定理：三角形边角的奥秘</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 任意三角形 -->
+      <polygon points="300,100 200,300 400,300" fill="none" stroke="black" stroke-width="2"/>
+      <!-- 虚线高线（从A到BC边） -->
+      <line x1="300" y1="100" x2="300" y2="300" stroke="gray" stroke-dasharray="5,5"/>
+      <!-- 标注边a、b、c -->
+      <text x="300" y="320" text-anchor="middle" font-size="16">a</text>
+      <text x="350" y="200" text-anchor="middle" font-size="16">b</text>
+      <text x="250" y="200" text-anchor="middle" font-size="16">c</text>
+      <!-- 标注角A、B、C及角A的弧线表示正弦 -->
+      <path d="M 291 118 A 20 20 0 0 1 309 118" fill="none" stroke="red" stroke-width="1"/>
+      <text x="280" y="120" font-size="16">A</text>
+      <text x="180" y="320" font-size="16">B</text>
+      <text x="420" y="320" font-size="16">C</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>三角形的基本要素</h3>
+    <div class="step-text">在任意三角形中，边a、b、c分别对应角A、B、C。正弦函数定义为 <span x-html="katex.renderToString('\\sin A = \\frac{\\text{对边}}{\\text{斜边}}', {throwOnError:false})"></span>，在直角三角形中适用，但推广到任意三角形需要借助高线或外接圆。</div>
+    <div class="bubble">想象一个三角形，每个角都有一个正弦值，它就像一把钥匙，帮助我们连接边和角的关系。</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 三角形 -->
+      <polygon points="100,300 300,300 200,100" fill="none" stroke="#333" stroke-width="2"/>
+      <!-- 三角形角标签 -->
+      <text x="90" y="320" font-size="14" fill="#333">A</text>
+      <text x="310" y="320" font-size="14" fill="#333">B</text>
+      <text x="200" y="90" font-size="14" fill="#333">C</text>
+      <!-- 三个条形图表示比值，高度相同表示相等 -->
+      <rect x="420" y="100" width="30" height="100" fill="#4CAF50" stroke="#333"/>
+      <text x="425" y="220" font-size="12" fill="#333">a/sin A</text>
+      <rect x="470" y="100" width="30" height="100" fill="#4CAF50" stroke="#333"/>
+      <text x="475" y="220" font-size="12" fill="#333">b/sin B</text>
+      <rect x="520" y="100" width="30" height="100" fill="#4CAF50" stroke="#333"/>
+      <text x="525" y="220" font-size="12" fill="#333">c/sin C</text>
+      <!-- 高亮相等：用相同颜色和边框 -->
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>边与角正弦值的比例关系</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('对于三角形的各边和对应角，计算 $\\frac{a}{\\sin A}$、$\\frac{b}{\\sin B}$、$\\frac{c}{\\sin C}$，会发现它们相等，即正弦定理的核心：$\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C}$。', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">哇，这三个比值竟然完全一样！这说明三角形中边和角的比例是固定的，不受形状变化影响。</div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 三角形 -->
+      <polygon points="100,300 200,100 400,200" fill="none" stroke="black" stroke-width="2"/>
+      <!-- 外接圆 -->
+      <circle cx="250" cy="200" r="150" fill="none" stroke="blue" stroke-width="2"/>
+      <!-- 标注半径R -->
+      <line x1="250" y1="200" x2="400" y2="200" stroke="red" stroke-width="1"/>
+      <text x="325" y="190" font-size="14" fill="red">R</text>
+      <!-- 显示比例公式 -->
+      <text x="150" y="380" font-size="16">a / sin A = 2R</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>连接外接圆半径</h3>
+    <div class="step-text">
+      引入三角形的外接圆，其半径R满足 <span x-html="katex.renderToString('\\frac{a}{\\sin A} = 2R', {throwOnError:false})"></span>，同样适用于其他边角对，即 <span x-html="katex.renderToString('\\frac{a}{\\sin A} = \\frac{b}{\\sin B} = \\frac{c}{\\sin C} = 2R', {throwOnError:false})"></span>，揭示了正弦定理与圆的几何联系。
+    </div>
+    <div class="bubble">这个比值还等于外接圆直径的两倍！它把三角形和圆完美地连接起来，让我们从更广阔的视角理解边角关系。</div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "三角形的基本要素", "text": "在任意三角形中，边a、b、c分别对应角A、B、C。正弦函数定义为$\\sin A = \frac{\text{对边}}{\text{斜边}}$，在直角三角形中适用，但推广到任意三角形需要借助高线或外接圆。", "bubble": "想象一个三角形，每个角都有一个正弦值，它就像一把钥匙，帮助我们连接边和角的关系。"}, {"title": "边与角正弦值的比例关系", "text": "对于三角形的各边和对应角，计算$\frac{a}{\\sin A}$、$\frac{b}{\\sin B}$、$\frac{c}{\\sin C}$，会发现它们相等，即正弦定理的核心：$\frac{a}{\\sin A} = \frac{b}{\\sin B} = \frac{c}{\\sin C}$。", "bubble": "哇，这三个比值竟然完全一样！这说明三角形中边和角的比例是固定的，不受形状变化影响。"}, {"title": "连接外接圆半径", "text": "引入三角形的外接圆，其半径R满足$\frac{a}{\\sin A} = 2R$，同样适用于其他边角对，即$\frac{a}{\\sin A} = \frac{b}{\\sin B} = \frac{c}{\\sin C} = 2R$，揭示了正弦定理与圆的几何联系。", "bubble": "这个比值还等于外接圆直径的两倍！它把三角形和圆完美地连接起来，让我们从更广阔的视角理解边角关系。"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

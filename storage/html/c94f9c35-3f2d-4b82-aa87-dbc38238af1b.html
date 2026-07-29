@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1+1等于几？</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>1+1等于几？</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 苹果1 -->
+      <circle cx="200" cy="150" r="60" fill="#FF3B30" />
+      <ellipse cx="180" cy="130" rx="15" ry="10" fill="rgba(255,255,255,0.3)" transform="rotate(-30 180 130)" />
+      <path d="M 200 90 Q 195 75 190 80" fill="none" stroke="#7A3B1E" stroke-width="4" stroke-linecap="round" />
+      <path d="M 190 80 Q 175 70 185 60 Q 195 65 190 80 Z" fill="#34C759" />
+      
+      <!-- 苹果2 -->
+      <circle cx="400" cy="150" r="60" fill="#FF3B30" />
+      <ellipse cx="380" cy="130" rx="15" ry="10" fill="rgba(255,255,255,0.3)" transform="rotate(-30 380 130)" />
+      <path d="M 400 90 Q 395 75 390 80" fill="none" stroke="#7A3B1E" stroke-width="4" stroke-linecap="round" />
+      <path d="M 390 80 Q 375 70 385 60 Q 395 65 390 80 Z" fill="#34C759" />
+
+      <!-- 数字1和1 -->
+      <text x="200" y="280" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#1A1A1A" text-anchor="middle">1</text>
+      <text x="400" y="280" font-family="Arial, sans-serif" font-size="36" font-weight="bold" fill="#1A1A1A" text-anchor="middle">1</text>
+
+      <!-- 箭头 -->
+      <line x1="200" y1="215" x2="200" y2="245" stroke="#FF9500" stroke-width="3" />
+      <polygon points="200,253 194,243 206,243" fill="#FF9500" />
+      
+      <line x1="400" y1="215" x2="400" y2="245" stroke="#FF9500" stroke-width="3" />
+      <polygon points="400,253 394,243 406,243" fill="#FF9500" />
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>认识两个1</h3>
+    <div class="step-text">
+      <p>我们有 <strong>两个</strong> 数量为 <span x-html="katex.renderToString('1', {throwOnError:false})"></span> 的物品。看，左边有 <span x-html="katex.renderToString('1', {throwOnError:false})"></span> 个苹果，右边也有 <span x-html="katex.renderToString('1', {throwOnError:false})"></span> 个苹果。</p>
+    </div>
+    <div class="bubble">小朋友，左边有一个苹果，右边也有一个苹果，它们都是单独的1。</div>
+  </div>
+</div>
+<template x-if="currentStep === 1">
+  <div class="step-panel flex gap-8 items-start p-8 bg-white rounded-2xl shadow-lg">
+    <!-- SVG 动画区域 -->
+    <div class="step-svg flex-1 min-w-0">
+      <svg viewBox="0 0 600 400" class="w-full h-auto">
+        <defs>
+          <style>
+            .apple-left {
+              animation: moveLeft 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+            .apple-right {
+              animation: moveRight 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+            .plus-sign {
+              animation: moveUp 2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            }
+            .arrow-group {
+              animation: showArrow 2.5s ease-in-out forwards;
+            }
+            @keyframes moveLeft {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(110px, 0); }
+            }
+            @keyframes moveRight {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(-110px, 0); }
+            }
+            @keyframes moveUp {
+              0% { transform: translate(0, 0); }
+              100% { transform: translate(0, -80px); }
+            }
+            @keyframes showArrow {
+              0%, 50% { opacity: 0; transform: translate(0, 20px); }
+              100% { opacity: 1; transform: translate(0, 0); }
+            }
+          </style>
+        </defs>
+
+        <!-- 草地背景 -->
+        <rect x="0" y="340" width="600" height="60" rx="20" fill="#E8F5E9" />
+
+        <!-- 苹果 1（左边） -->
+        <g class="apple-left" transform="translate(150, 200)">
+          <!-- 主体 -->
+          <circle cx="0" cy="0" r="45" fill="#FF3B30" />
+          <!-- 高光 -->
+          <path d="M -20 -20 A 30 30 0 0 1 10 -30" stroke="#FFA3A0" stroke-width="6" stroke-linecap="round" fill="none" />
+          <!-- 茎 -->
+          <path d="M -5 -45 Q 0 -55 5 -45" stroke="#5D4037" stroke-width="6" fill="none" stroke-linecap="round" />
+          <!-- 叶子 -->
+          <path d="M 5 -45 Q 20 -55 15 -35" fill="#34C759" />
+        </g>
+
+        <!-- 苹果 2（右边） -->
+        <g class="apple-right" transform="translate(450, 200)">
+          <!-- 主体 -->
+          <circle cx="0" cy="0" r="45" fill="#FF3B30" />
+          <!-- 高光 -->
+          <path d="M -20 -20 A 30 30 0 0 1 10 -30" stroke="#FFA3A0" stroke-width="6" stroke-linecap="round" fill="none" />
+          <!-- 茎 -->
+          <path d="M -5 -45 Q 0 -55 5 -45" stroke="#5D4037" stroke-width="6" fill="none" stroke-linecap="round" />
+          <!-- 叶子 -->
+          <path d="M 5 -45 Q 20 -55 15 -35" fill="#34C759" />
+        </g>
+
+        <!-- 蓝色加号 -->
+        <g class="plus-sign" transform="translate(300, 200)">
+          <!-- 阴影 -->
+          <rect x="-28" y="12" width="56" height="20" rx="8" fill="#000000" opacity="0.1" />
+          <rect x="-8" y="-8" width="16" height="56" rx="8" fill="#000000" opacity="0.1" />
+          <!-- 主体 -->
+          <rect x="-30" y="-10" width="60" height="20" rx="8" fill="#007AFF" />
+          <rect x="-10" y="-30" width="20" height="60" rx="8" fill="#007AFF" />
+          <!-- 高光 -->
+          <rect x="-20" y="-6" width="40" height="12" rx="4" fill="#5AC8FA" opacity="0.6" />
+          <rect x="-6" y="-20" width="12" height="40" rx="4" fill="#5AC8FA" opacity="0.6" />
+        </g>
+
+        <!-- 箭头 -->
+        <g class="arrow-group" transform="translate(300, 130)">
+          <line x1="0" y1="0" x2="0" y2="130" stroke="#007AFF" stroke-width="5" stroke-dasharray="8,6" stroke-linecap="round" />
+          <polygon points="-16,120 0,145 16,120" fill="#007AFF" />
+        </g>
+      </svg>
+    </div>
+
+    <!-- 右侧信息面板 -->
+    <div class="step-info w-80 flex-shrink-0">
+      <h3 class="text-2xl font-bold text-blue-600 flex items-center gap-2">
+        <span>把它们合起来</span>
+        <span class="text-3xl">🧮</span>
+      </h3>
+      
+      <div class="step-text mt-6 text-base leading-relaxed text-gray-700">
+        <p>
+          把左边的
+          <span class="inline-flex items-center justify-center w-9 h-9 bg-red-500 text-white rounded-full text-base font-bold mx-1" x-html="katex.renderToString('1', {throwOnError:false})"></span>
+          和右边的
+          <span class="inline-flex items-center justify-center w-9 h-9 bg-red-500 text-white rounded-full text-base font-bold mx-1" x-html="katex.renderToString('1', {throwOnError:false})"></span>
+          <strong class="text-gray-900">合并</strong> 在一起，用加号“
+          <span class="text-blue-500 font-bold text-xl mx-0.5" x-html="katex.renderToString('+', {throwOnError:false})"></span>”表示合起来的动作。
+        </p>
+      </div>
+
+      <div class="bubble mt-8 p-5 bg-blue-50 border-l-4 border-blue-500 rounded-xl shadow-sm">
+        <p class="text-gray-700 text-sm leading-relaxed">
+          <span class="text-lg mr-2">💡</span>
+          我们把两个苹果放到一起，加号就像一座小桥，把它们连起来。
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+<div x-show="currentStep === 2" class="step-panel">
+  <style>
+    @keyframes resultPulse {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px #FFD700);
+      }
+      50% {
+        transform: scale(1.2);
+        filter: drop-shadow(0 0 30px #FFA500);
+      }
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 10px #FFD700);
+      }
+    }
+    .animate-result {
+      animation: resultPulse 1.5s ease-in-out infinite;
+      transform-origin: 460px 225px;
+    }
+    .bubble {
+      background-color: #F0F8FF;
+      border: 2px solid #87CEEB;
+      border-radius: 18px;
+      padding: 15px;
+      margin-top: 15px;
+      position: relative;
+    }
+    .bubble::before {
+      content: '';
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid #87CEEB;
+    }
+    .step-panel {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .step-svg {
+      flex-shrink: 0;
+    }
+    .step-info {
+      flex-grow: 1;
+    }
+    .step-text {
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    .step-text strong {
+      color: #d32f2f;
+    }
+  </style>
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <defs>
+        <g id="apple">
+          <!-- 苹果主体 -->
+          <ellipse cx="0" cy="0" rx="30" ry="35" fill="#FF3B30" />
+          <!-- 高光 -->
+          <ellipse cx="-8" cy="-12" rx="8" ry="12" fill="#FF6E6E" opacity="0.6" />
+          <!-- 茎 -->
+          <path d="M 0 -35 Q 5 -45 10 -40" fill="none" stroke="#4A3728" stroke-width="3" stroke-linecap="round" />
+          <!-- 叶子 -->
+          <ellipse cx="8" cy="-38" rx="8" ry="4" fill="#34C759" transform="rotate(30 8 -38)" />
+        </g>
+      </defs>
+
+      <!-- 苹果上方总数量标签 -->
+      <text x="180" y="100" text-anchor="middle" font-size="28" font-weight="bold" fill="#333">2个</text>
+
+      <!-- 两个并排的苹果 -->
+      <use href="#apple" x="120" y="180" />
+      <use href="#apple" x="240" y="180" />
+
+      <!-- 苹果下方的等号“=” -->
+      <line x1="320" y1="185" x2="360" y2="185" stroke="#333" stroke-width="6" stroke-linecap="round" />
+      <line x1="320" y1="205" x2="360" y2="205" stroke="#333" stroke-width="6" stroke-linecap="round" />
+
+      <!-- 等号右侧大大的数字“2”，金色突出显示 -->
+      <text x="460" y="225" text-anchor="middle" font-size="90" font-weight="bold" fill="#FFD700" class="animate-result">2</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>得到结果2</h3>
+    <div class="step-text">
+      合并后，我们得到了一共 <strong>多少</strong> 个苹果？数一数：
+      <span x-html="katex.renderToString('1+1=2', {throwOnError:false})"></span>。答案就是
+      <span x-html="katex.renderToString('2', {throwOnError:false})"></span>。
+    </div>
+    <div class="bubble">哇！一个苹果加一个苹果，合起来就是两个苹果，也就是数字2！</div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "认识两个1", "text": "我们有 **两个** 数量为 $1$ 的物品。看，左边有 $1$ 个苹果，右边也有 $1$ 个苹果。", "bubble": "小朋友，左边有一个苹果，右边也有一个苹果，它们都是单独的1。"}, {"title": "把它们合起来", "text": "把左边的 $1$ 和右边的 $1$ **合并** 在一起，用加号“$+$”表示合起来的动作。", "bubble": "我们把两个苹果放到一起，加号就像一座小桥，把它们连起来。"}, {"title": "得到结果2", "text": "合并后，我们得到了一共 **多少** 个苹果？数一数：$1+1=2$。答案就是 $2$。", "bubble": "哇！一个苹果加一个苹果，合起来就是两个苹果，也就是数字2！"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

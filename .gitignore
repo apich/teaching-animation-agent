@@ -10,9 +10,9 @@ __pycache__/
 venv/
 
 # Storage (generated files)
-storage/html/
-storage/previews/
-storage/metadata/
+# storage/html/
+# storage/previews/
+# storage/metadata/
 
 # Reference files
 xsyy_reference.html

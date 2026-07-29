@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- 背景：宣纸古风底色 -->
+  <rect width="400" height="300" fill="#F7F5F0" />
+  
+  <!-- 远山：黛染层峦 -->
+  <path d="M 0 220 Q 150 150, 400 220 L 400 300 L 0 300 Z" fill="#3E5C76" opacity="0.1" />
+  
+  <!-- 近山：墨色氤氲 -->
+  <path d="M 0 260 Q 200 220, 400 260 L 400 300 L 0 300 Z" fill="#3E5C76" opacity="0.15" />
+  
+  <!-- 云纹装饰：山间雾霭 -->
+  <path d="M 80 210 Q 120 200, 160 210 Q 200 200, 240 210 Q 280 200, 320 210" fill="none" stroke="#3E5C76" stroke-width="1.5" opacity="0.2" stroke-linecap="round" />
+  
+  <!-- 数学函数曲线：正弦波 -->
+  <path d="M 60 180 C 100 120, 140 120, 180 180 C 220 240, 260 240, 300 180 C 340 120, 380 120, 390 140" fill="none" stroke="#3E5C76" stroke-width="2" opacity="0.5" />
+  
+  <!-- 坐标系轴线 -->
+  <line x1="40" y1="180" x2="400" y2="180" stroke="#3E5C76" stroke-width="1" opacity="0.4" />
+  <line x1="220" y1="210" x2="220" y2="40" stroke="#3E5C76" stroke-width="1" opacity="0.4" />
+  
+  <!-- 核心问题：1+1等于几？ -->
+  <text x="200" y="105" text-anchor="middle" font-family="'KaiTi', 'STKaiti', serif" font-size="52" fill="#3E5C76" font-weight="bold">1 + 1 = ？</text>
+  
+  <!-- 数学教具：三角板 -->
+  <polygon points="280,200 390,200 280,270" fill="none" stroke="#3E5C76" stroke-width="1.5" opacity="0.6" />
+  <path d="M 280 200 L 285 205 L 290 200" fill="none" stroke="#3E5C76" stroke-width="1" opacity="0.6" />
+  
+  <!-- 数学教具：矩尺 -->
+  <rect x="30" y="240" width="90" height="8" rx="1" fill="none" stroke="#3E5C76" stroke-width="1.5" opacity="0.6" />
+  <path d="M 45 240 L 45 248 M 60 240 L 60 248 M 75 240 L 75 248 M 90 240 L 90 248 M 105 240 L 105 248" stroke="#3E5C76" stroke-width="1" opacity="0.6" />
+  
+  <!-- 装饰：朱砂梅枝（右上） -->
+  <path d="M 340 20 Q 370 10, 395 15 M 370 15 Q 380 35, 395 45 M 330 25 Q 345 40, 355 50" fill="none" stroke="#B83B43" stroke-width="1.5" stroke-linecap="round" />
+  <circle cx="395" cy="15" r="3" fill="#B83B43" />
+  <circle cx="395" cy="45" r="2.5" fill="#B83B43" />
+  <circle cx="355" cy="50" r="2" fill="#B83B43" />
+  <circle cx="340" cy="20" r="2.5" fill="#B83B43" />
+  
+  <!-- 装饰：翠竹叶（左上） -->
+  <path d="M 15 25 Q 20 15, 25 20 Q 20 30, 15 25 M 25 15 Q 30 5, 35 10 Q 30 20, 25 15" fill="#3E5C76" opacity="0.6" />
+  
+  <!-- 落款印鉴：朱砂篆刻 -->
+  <circle cx="45" cy="45" r="18" fill="none" stroke="#B83B43" stroke-width="2" />
+  <text x="45" y="51" text-anchor="middle" font-family="'KaiTi', 'STKaiti', serif" font-size="20" fill="#B83B43">学</text>
+</svg>

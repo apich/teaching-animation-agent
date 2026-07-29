@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>长方形面积计算</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+<style>
+body { font-family: 'Songti SC','SimSun',serif; background:#fdfbf7; margin:0; }
+.step-panel { display:flex; gap:24px; padding:20px; min-height:400px; }
+.step-svg { flex:1; }
+.step-svg svg { width:100%; height:100%; max-height:400px; }
+.step-info { width:320px; display:flex; flex-direction:column; gap:12px; }
+.step-info h3 { font-size:1.2rem; font-weight:700; color:#2B2B2B; margin:0; }
+.step-text { font-size:0.95rem; color:#5A6A76; line-height:1.6; }
+.bubble { background:rgba(255,255,255,0.85); border:1px solid #E0DCD3; border-radius:12px;
+           padding:14px; font-size:0.9rem; color:#5A6A76; line-height:1.6;
+           position:relative; }
+.bubble::before { content:''; position:absolute; left:16px; top:-8px;
+                   border-left:8px solid transparent; border-right:8px solid transparent;
+                   border-bottom:8px solid rgba(255,255,255,0.85); }
+.nav { display:flex; justify-content:center; gap:12px; padding:16px; }
+.nav button { padding:8px 24px; border:1px solid #E0DCD3; border-radius:8px; background:#fff;
+               cursor:pointer; font-size:0.9rem; color:#2B2B2B; transition:all 0.2s; }
+.nav button:hover { background:#3E5C76; color:#fff; border-color:#3E5C76; }
+.nav button:disabled { opacity:0.4; cursor:not-allowed; }
+.nav button:disabled:hover { background:#fff; color:#2B2B2B; border-color:#E0DCD3; }
+.dots { display:flex; gap:8px; align-items:center; }
+.dot { width:10px; height:10px; border-radius:50%; background:#E0DCD3; cursor:pointer; transition:all 0.2s; }
+.dot.active { background:#3E5C76; transform:scale(1.2); }
+header { text-align:center; padding:20px; border-bottom:1px solid #E0DCD3; }
+header h1 { font-size:1.5rem; color:#2B2B2B; margin:0; }
+</style>
+</head>
+<body x-data="mathApp()">
+
+<header>
+  <h1>长方形面积计算</h1>
+</header>
+
+<div style="max-width:1000px;margin:0 auto;position:relative;min-height:400px;">
+<div x-show="currentStep === 0" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arrow" markerWidth="8" markerHeight="8" refX="8" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="#2196F3"/>
+        </marker>
+      </defs>
+      <!-- 长方形 -->
+      <rect x="100" y="100" width="400" height="200" fill="#e0f0ff" stroke="#2196F3" stroke-width="2"/>
+      <!-- 长 a 水平箭头（上方） -->
+      <line x1="100" y1="85" x2="500" y2="85" stroke="#2196F3" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="100" y1="85" x2="100" y2="75" stroke="#2196F3" stroke-width="1.5"/>
+      <line x1="500" y1="85" x2="500" y2="75" stroke="#2196F3" stroke-width="1.5"/>
+      <text x="300" y="72" text-anchor="middle" font-size="18" fill="#2196F3" font-family="sans-serif">长 a</text>
+      <!-- 宽 b 垂直箭头（左侧） -->
+      <line x1="85" y1="100" x2="85" y2="300" stroke="#2196F3" stroke-width="1.5" marker-end="url(#arrow)"/>
+      <line x1="85" y1="100" x2="75" y2="100" stroke="#2196F3" stroke-width="1.5"/>
+      <line x1="85" y1="300" x2="75" y2="300" stroke="#2196F3" stroke-width="1.5"/>
+      <text x="72" y="200" text-anchor="middle" font-size="18" fill="#2196F3" font-family="sans-serif" transform="rotate(-90,72,200)">宽 b</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>认识长方形</h3>
+    <div class="step-text">长方形有长和宽，长记为 <span x-html="katex.renderToString('a', {throwOnError:false})"></span>，宽记为 <span x-html="katex.renderToString('b', {throwOnError:false})"></span>。</div>
+    <div class="bubble">看，这个长方形有两条边，长的叫长，短的叫宽。</div>
+  </div>
+</div>
+<div x-show="currentStep === 1" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 大矩形背景（浅绿色） -->
+      <rect x="150" y="60" width="320" height="240" fill="#d4edda" stroke="#333" stroke-width="1.5"/>
+      
+      <!-- 竖直线（虚线） -->
+      <line x1="230" y1="60" x2="230" y2="300" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      <line x1="310" y1="60" x2="310" y2="300" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      <line x1="390" y1="60" x2="390" y2="300" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      <line x1="470" y1="60" x2="470" y2="300" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      
+      <!-- 水平线（虚线） -->
+      <line x1="150" y1="140" x2="470" y2="140" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      <line x1="150" y1="220" x2="470" y2="220" stroke="#999" stroke-dasharray="5,5" stroke-width="1.5"/>
+      
+      <!-- 右下角算式 "4×3" 背景和文字 -->
+      <rect x="430" y="270" width="70" height="40" rx="6" fill="white" fill-opacity="0.85" stroke="#ccc"/>
+      <text x="465" y="295" font-size="22" font-weight="bold" fill="#333" text-anchor="middle" font-family="Arial">4×3</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>面积的含义</h3>
+    <div class="step-text">
+      面积就是长方形包含的单位小方格数量。每行有 <span x-html="katex.renderToString('a', {throwOnError: false})"></span> 个小方格，有 <span x-html="katex.renderToString('b', {throwOnError: false})"></span> 行，总数为 <span x-html="katex.renderToString('a \\times b', {throwOnError: false})"></span>。
+    </div>
+    <div class="bubble">我们用小方块铺满长方形，数一数一共多少个？横着数a个，竖着数b行，总数就是a乘以b。</div>
+  </div>
+</div>
+<div x-show="currentStep === 2" class="step-panel">
+  <div class="step-svg">
+    <svg viewBox="0 0 600 400">
+      <!-- 5×3网格，每个格子60×60，起始点(100,60) -->
+      <g>
+        <!-- 高亮所有15个格子 -->
+        <rect x="100" y="60" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="160" y="60" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="220" y="60" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="280" y="60" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="340" y="60" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="100" y="120" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="160" y="120" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="220" y="120" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="280" y="120" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="340" y="120" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="100" y="180" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="160" y="180" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="220" y="180" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="280" y="180" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+        <rect x="340" y="180" width="60" height="60" fill="#a0d8ef" stroke="#333" stroke-width="1.5"/>
+      </g>
+      <!-- 标注长5cm -->
+      <line x1="100" y1="255" x2="400" y2="255" stroke="#b33" stroke-width="2"/>
+      <line x1="100" y1="250" x2="100" y2="260" stroke="#b33" stroke-width="2"/>
+      <line x1="400" y1="250" x2="400" y2="260" stroke="#b33" stroke-width="2"/>
+      <text x="250" y="275" text-anchor="middle" font-size="18" fill="#b33">长 5cm</text>
+      <!-- 标注宽3cm -->
+      <line x1="415" y1="60" x2="415" y2="240" stroke="#3a6" stroke-width="2"/>
+      <line x1="410" y1="60" x2="420" y2="60" stroke="#3a6" stroke-width="2"/>
+      <line x1="410" y1="240" x2="420" y2="240" stroke="#3a6" stroke-width="2"/>
+      <text x="440" y="155" text-anchor="middle" font-size="18" fill="#3a6">宽 3cm</text>
+      <!-- 底部公式 -->
+      <text x="250" y="350" text-anchor="middle" font-size="22" font-weight="bold" fill="#222">S = 5 × 3 = 15 cm²</text>
+    </svg>
+  </div>
+  <div class="step-info">
+    <h3>计算面积</h3>
+    <div class="step-text">
+      <span x-html="katex.renderToString('a=5 \\text{厘米}, b=3 \\text{厘米}, S = 5 \\times 3 = 15 \\text{平方厘米}', {throwOnError:false})"></span>
+    </div>
+    <div class="bubble">比如长5厘米，宽3厘米，面积就是5×3=15，单位是平方厘米哦！</div>
+  </div>
+</div>
+</div>
+
+<div class="nav">
+  <button @click="prevStep()" :disabled="currentStep===0">‹ 上一步</button>
+  <div class="dots">
+    <template x-for="(s,i) in steps" :key="i">
+      <div class="dot" :class="currentStep===i && 'active'" @click="currentStep=i"></div>
+    </template>
+  </div>
+  <button @click="nextStep()" :disabled="currentStep===steps.length-1">下一步 ›</button>
+</div>
+
+<script>
+function mathApp() {
+  return {
+    currentStep: 0,
+    steps: [{"title": "认识长方形", "text": "长方形有长和宽，长记为 $a$，宽记为 $b$。", "bubble": "看，这个长方形有两条边，长的叫长，短的叫宽。"}, {"title": "面积的含义", "text": "面积就是长方形包含的单位小方格数量。每行有 a 个小方格，有 b 行，总数为 $a \\times b$。", "bubble": "我们用小方块铺满长方形，数一数一共多少个？横着数a个，竖着数b行，总数就是a乘以b。"}, {"title": "计算面积", "text": "已知 $a=5$ 厘米，$b=3$ 厘米，面积 $S = 5 \\times 3 = 15$ 平方厘米。", "bubble": "比如长5厘米，宽3厘米，面积就是5×3=15，单位是平方厘米哦！"}],
+    nextStep() { if(this.currentStep<this.steps.length-1) this.currentStep++ },
+    prevStep() { if(this.currentStep>0) this.currentStep-- }
+  };
+}
+</script>
+</body>
+</html>

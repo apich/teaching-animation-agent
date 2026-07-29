@@ -1,0 +1,165 @@
+{
+  "0c6800e1-5150-41f1-8134-7d315657a3ef": {
+    "task_id": "0c6800e1-5150-41f1-8134-7d315657a3ef",
+    "prompt": "勾股定理",
+    "status": "completed",
+    "progress": 100,
+    "title": "勾股定理",
+    "tags": {
+      "main_tag": "几何直观",
+      "sub_tags": [
+        "空间观念",
+        "推理意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "22d0409e-7b59-49a8-b8df-f02b2900f530": {
+    "task_id": "22d0409e-7b59-49a8-b8df-f02b2900f530",
+    "prompt": "3×4 乘法动画",
+    "status": "completed",
+    "progress": 100,
+    "title": "3×4 乘法动画",
+    "tags": {
+      "main_tag": "运算能力",
+      "sub_tags": [
+        "数感",
+        "模型意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "3b1fc885-6e5e-4b8b-802a-41c2edf18625": {
+    "task_id": "3b1fc885-6e5e-4b8b-802a-41c2edf18625",
+    "prompt": "探索正弦定理：三角形边角的奥秘",
+    "status": "completed",
+    "progress": 100,
+    "title": "探索正弦定理：三角形边角的奥秘",
+    "tags": {
+      "main_tag": "几何直观",
+      "sub_tags": [
+        "空间观念",
+        "推理意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "5559557b-677a-4582-aa03-b1a0a1c25de2": {
+    "task_id": "5559557b-677a-4582-aa03-b1a0a1c25de2",
+    "prompt": "逻辑回归分析：从数据到预测",
+    "status": "completed",
+    "progress": 100,
+    "title": "逻辑回归分析：从数据到预测",
+    "tags": {
+      "main_tag": "数据意识",
+      "sub_tags": [
+        "推理意识",
+        "模型意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "6710a387-2093-4133-880a-a9ca08055f59": {
+    "task_id": "6710a387-2093-4133-880a-a9ca08055f59",
+    "prompt": "揭秘洛必达法则：用导数解开'0/0'的极限谜题",
+    "status": "completed",
+    "progress": 100,
+    "title": "揭秘洛必达法则",
+    "tags": {
+      "main_tag": "推理意识",
+      "sub_tags": [
+        "运算能力",
+        "数感"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "c94f9c35-3f2d-4b82-aa87-dbc38238af1b": {
+    "task_id": "c94f9c35-3f2d-4b82-aa87-dbc38238af1b",
+    "prompt": "1+1等于几？",
+    "status": "completed",
+    "progress": 100,
+    "title": "1+1等于几？",
+    "tags": {
+      "main_tag": "运算能力",
+      "sub_tags": [
+        "数感",
+        "模型意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "f0ce9d48-6f53-408d-9193-145275b7ab59": {
+    "task_id": "f0ce9d48-6f53-408d-9193-145275b7ab59",
+    "prompt": "长方形面积计算",
+    "status": "completed",
+    "progress": 100,
+    "title": "长方形面积计算",
+    "tags": {
+      "main_tag": "几何直观",
+      "sub_tags": [
+        "空间观念",
+        "量感"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "f1ec2a9e-8a79-4ea5-89bb-35ff0e1d9ab4": {
+    "task_id": "f1ec2a9e-8a79-4ea5-89bb-35ff0e1d9ab4",
+    "prompt": "长方体体积计算动画演示",
+    "status": "completed",
+    "progress": 100,
+    "title": "长方体体积计算动画演示",
+    "tags": {
+      "main_tag": "空间观念",
+      "sub_tags": [
+        "几何直观",
+        "量感"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "f5e25d5b-c0a0-4a7d-80af-f3dec467338e": {
+    "task_id": "f5e25d5b-c0a0-4a7d-80af-f3dec467338e",
+    "prompt": "三角形面积公式推导",
+    "status": "completed",
+    "progress": 100,
+    "title": "三角形面积公式推导",
+    "tags": {
+      "main_tag": "几何直观",
+      "sub_tags": [
+        "空间观念",
+        "推理意识"
+      ]
+    },
+    "preview_type": "svg",
+    "created_at": "2026-07-28T10:00:00+00:00",
+    "updated_at": "2026-07-28T10:00:00+00:00"
+  },
+  "d02d9d0c-f1ed-4bf7-adf3-4c772a386560": {
+    "task_id": "d02d9d0c-f1ed-4bf7-adf3-4c772a386560",
+    "prompt": "[文件内容]\r\n题目：解方程 x² - 6x + 5 = 0\r\n\r\n[补充说明]\r\n解题",
+    "status": "planning",
+    "progress": 20,
+    "title": null,
+    "preview_type": null,
+    "created_at": "2026-07-29T16:15:39.592995+00:00",
+    "updated_at": "2026-07-29T16:16:22.833628+00:00"
+  }
+}

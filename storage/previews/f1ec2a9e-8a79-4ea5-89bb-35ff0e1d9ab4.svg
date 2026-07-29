@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300">
+  <!-- 背景 -->
+  <rect width="400" height="300" fill="#F7F5F0"/>
+
+  <!-- 古风装饰：山水轮廓 -->
+  <path d="M 0,250 Q 60,220 120,240 T 240,230 T 360,250 T 400,240 L 400,300 L 0,300 Z M 0,270 Q 80,250 160,260 T 280,250 T 400,270 L 400,300 L 0,300 Z" fill="#3E5C76" fill-opacity="0.1"/>
+
+  <!-- 古风装饰：左上角圆形印章/月亮 -->
+  <g opacity="0.4">
+    <circle cx="50" cy="50" r="25" fill="#B83B43" fill-opacity="0.1"/>
+    <circle cx="50" cy="50" r="20" fill="none" stroke="#B83B43" stroke-width="1.5"/>
+  </g>
+
+  <!-- 核心数学图形：长方体 -->
+  <!-- 前面 -->
+  <path d="M 160,220 L 260,220 L 260,140 L 160,140 Z" fill="#3E5C76" fill-opacity="0.15"/>
+  <!-- 顶面 -->
+  <path d="M 160,140 L 260,140 L 300,120 L 200,120 Z" fill="#3E5C76" fill-opacity="0.3"/>
+  <!-- 右面 -->
+  <path d="M 260,140 L 300,120 L 300,200 L 260,220 Z" fill="#3E5C76" fill-opacity="0.45"/>
+  <!-- 棱边 -->
+  <path d="M 160,220 L 260,220 L 300,200 L 300,120 L 200,120 L 160,140 Z M 260,220 L 260,140 L 300,120 M 160,220 L 160,140 L 200,120 M 200,200 L 300,200 M 200,200 L 200,120" fill="none" stroke="#3E5C76" stroke-width="2" stroke-linejoin="round"/>
+
+  <!-- 维度指示线 -->
+  <path d="M 170,230 L 250,230 M 150,220 L 150,140 M 270,210 L 290,190" stroke="#B83B43" stroke-width="1.5" fill="none"/>
+
+  <!-- 维度文本标签 (长、宽、高) -->
+  <g fill="#B83B43" font-family="'STKaiti', 'KaiTi', serif" font-size="14" text-anchor="middle">
+    <text x="210" y="245">宽 <tspan font-size="12">(w)</tspan></text>
+    <text x="140" y="180" transform="rotate(-90 140 180)">高 <tspan font-size="12">(h)</tspan></text>
+    <text x="280" y="205" transform="rotate(-30 280 205)">长 <tspan font-size="12">(l)</tspan></text>
+  </g>
+
+  <!-- 标题与公式 -->
+  <text x="70" y="80" font-family="'STKaiti', 'KaiTi', serif" font-size="26" fill="#3E5C76" font-weight="bold">长方体体积计算</text>
+  <path d="M 70,90 L 270,90" stroke="#B83B43" stroke-width="2" fill="none"/>
+  <text x="70" y="115" font-family="'STKaiti', 'KaiTi', serif" font-size="18" fill="#B83B43">V = l × w × h</text>
+
+  <!-- 古风装饰：右上角梅花枝 -->
+  <path d="M 380,30 Q 350,40 340,70 Q 330,100 290,120 M 340,70 Q 360,90 370,110 M 360,50 Q 380,60 390,80" fill="none" stroke="#3E5C76" stroke-width="2" stroke-linecap="round"/>
+  <!-- 梅花 (朱砂色圆点) -->
+  <path d="M 340,70 m -4,0 a 4,4 0 1,0 8,0 a 4,4 0 1,0 -8,0 M 290,120 m -3,0 a 3,3 0 1,0 6,0 a 3,3 0 1,0 -6,0 M 370,110 m -3.5,0 a 3.5,3.5 0 1,0 7,0 a 3.5,3.5 0 1,0 -7,0 M 380,60 m -2.5,0 a 2.5,2.5 0 1,0 5,0 a 2.5,2.5 0 1,0 -5,0 M 320,90 m -2,0 a 2,2 0 1,0 4,0 a 2,2 0 1,0 -4,0" fill="#B83B43"/>
+</svg>
